@@ -24,7 +24,7 @@ using namespace std
 - `ctrl + /` 를 누르면 실제 원본 문서를 볼 수 있다.     
   <br/>
 
-  ```
+  ```html
   ``` + 언어이름
   
   <코드>
