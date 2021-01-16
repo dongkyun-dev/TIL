@@ -4,12 +4,14 @@
 
 ---
 
-## `npm install <module-name> --save`
+#### `npm install <module-name> --save`
 
 - `--save` 옵션을 추가함으로써 `package.json`의 `dependency `항목에 모듈을 추가한다.
 - npm5부터는 `--save` 옵션을 사용하지 않아도 `dependency`에 자동으로 모듈 추가가 된다.
 
-### `npm install <module-name> --save-dev`
+<br/>
+
+#### `npm install <module-name> --save-dev`
 
 - `-dev` 옵션을 추가함으로써 `package.json`의 `devDependencies` 항목에 모듈을 추가한다.
 
@@ -32,11 +34,11 @@ npm 공식문서에서는 이 둘을 이렇게 구분하고 있다. 로컬 환�
 
 <br/>
 
-**The real answer is <u>it depends</u>. The choice of where to put each module depends not only on the module itself, but on your application and even on the ways it's developed and deployed.**
+*The real answer is <u>it depends</u>. The choice of where to put each module depends not only on the module itself, but on your application and even on the ways it's developed and deployed.*
 
 <br/>
 
-결국! 제일 핵심은 때에 따라 다르다는 것이다. 그때 그때 상황에 맞추어 자신의 관점하에 이 둘을 구분하는 것이다. 때문에 이 둘을 구분할 때 사용할 **자신의 관점**을 확실하게 만들어나가는 과정이 중요하다. 나 또한 이런 관점과 기준을 만들기 위해 노력하고, 이 기준 하에 둘을 구별해 나갈 생각이다.
+결국! 제일 핵심은 때에 따라 다르다는 것이다. 그때 그때 상황에 맞추어 자신의 관점하에 이 둘을 구분하는 것이다. 때문에 이 둘을 구분할 때 사용할 <u>**자신의 관점**</u>을 확실하게 만들어나가는 과정이 중요하다. 나 또한 이런 관점과 기준을 만들기 위해 노력하고, 이 기준 하에 둘을 구별해 나갈 생각이다.
 
 
 
