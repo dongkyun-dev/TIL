@@ -57,8 +57,8 @@
 
 ### pull
 
-- git pull <원격저장소 이름><올릴 브랜치 이름>
-  - git pull origin master
+- `git pull <원격저장소 이름><올릴 브랜치 이름>`
+  - `git pull origin master`
 - 깃허브상에서 수정된 코드를 가져오기
 
 
