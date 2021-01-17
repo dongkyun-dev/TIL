@@ -61,7 +61,7 @@ mongoose.connect('mongodb+srv://JangDongkyun:<password>@cluster0.nxywy.mongodb.n
 
 <br/>
 
-<기본적으로 들어가는 옵션들에 대한 설명>
+##### <기본적으로 들어가는 옵션들에 대한 설명>
 
 <br/>
 
@@ -129,6 +129,7 @@ import mongoose from 'mongoose';
   });
 
 const Blog = mongoose.model('Blog', blogSchema);
+module.exports = { Blog }
 ```
 
 >[공식문서 가이드 코드](https://mongoosejs.com/docs/guide.html)
