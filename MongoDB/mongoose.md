@@ -1,8 +1,14 @@
 # MongoDB
 
+<br/>
+
+<br/>
+
 ![img](https://t1.daumcdn.net/cfile/tistory/99F1D23359DB7A6434)
 
 >몽고디비는 document 지향 데이터베이스 시스템이다. NoSQL 데이터베이스로 분류되는 몽고디비는 JSON과 같은 동적 스키마형 document들을 선호함에 따라 전통적인 테이블 기반 관계형 데이터베이스 구조의 사용을 삼간다.
+
+<br/>
 
 ### 그렇다면 NoSQL과 관계형 데이터베이스는 어떤 차이점이 있을까?
 
@@ -16,12 +22,15 @@
 >
 > 불필요한 JOIN 최소화, 유연성있는 서버 구조 제공, 비정형 데이터 구조로 설계비용 감소, Read/Write가 빠르면 빅데이터 처리가 가능하다는 장점을 가진다.
 
+<br/>
+
 |    관계형 데이터베이스     |             NoSQL              |
 | :------------------------: | :----------------------------: |
 | 서버 한 대를 중심으로 확장 | 여러 대의 서버를 중심으로 확장 |
 |           무결성           |             유연성             |
 |      데이터 중복 제거      |        데이터 중복 허용        |
 |          트랜잭션          |        빠른 읽기, 쓰기         |
+<br/>
 
 [아마존](https://aws.amazon.com/ko/nosql/)
 
@@ -32,6 +41,10 @@
 ---
 
 ## &#127804;기본적인 mongoose connect
+
+<br/>
+
+<br/>
 
 ```javascript
 const mongoose = require('mongoose')
@@ -46,7 +59,11 @@ mongoose.connect('mongodb+srv://JangDongkyun:<password>@cluster0.nxywy.mongodb.n
 
 > `index.js`에서의 mongoose 연결부분
 
+<br/>
+
 <기본적으로 들어가는 옵션들에 대한 설명>
+
+<br/>
 
 - `useNewUrlParser: true`
 
@@ -54,17 +71,23 @@ mongoose.connect('mongodb+srv://JangDongkyun:<password>@cluster0.nxywy.mongodb.n
 
 > useNewUrlParser 옵션에 true를 주어야 url 뒤에 붙는 포트 번호를 인식할 수 있다.
 
+<br/>
+
 - `useUnifiedTopology: true`
 
 *False by default. Set to true to opt in to using [the MongoDB driver's new connection management engine](https://mongoosejs.com/docs/deprecations.html#useunifiedtopology). You should set this option to true, except for the unlikely case that it prevents you from maintaining a stable connection.*
 
 > 특별한 이유가 없다면 이 옵션은 그냥 반드시 true
 
+<br/>
+
 - useCreateIndex: true
 
 *False by default. Set to `true` to make Mongoose's default index build use `createIndex()` instead of `ensureIndex()` to avoid deprecation warnings from the MongoDB driver.*
 
 >createIndex() 옵션을 사용하기 위해서는 true로 설정해야 한다. index는 항상 사용하기 때문에 이 설정도 그냥 항상 true로 설정한다고 생각해두어도 좋을 것 같다.
+
+<br/>
 
 - useFindAndModify: false
 
