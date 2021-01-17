@@ -99,7 +99,7 @@ mongoose.connect('mongodb+srv://JangDongkyun:<password>@cluster0.nxywy.mongodb.n
 > DeprecationWarning: Mongoose: `findOneAndUpdate()` and `findOneAndDelete()` without the `useFindAndModify` option set to false are deprecated. See: https://mongoosejs.com/docs/deprecations.html#findandmodify DeprecationWarning: collection.findAndModify is deprecated. Use findOneAndUpdate, findOneAndReplace or findOneAndDelete instead.
 > ```
 >
-> 이런 에러 코드가 뜬다. 에러 코드를 이해하는 능력이 필요하기에 에러코드도 주의 깊게 보아야 한다.
+> 이런 에러 코드가 뜬다. 에러 코드를 이해하는 능력이 필요하기에 에러코드도 주의 깊게 보아야 한다.&
 
 <br/>
 
