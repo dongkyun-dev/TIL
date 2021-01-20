@@ -17,7 +17,7 @@
 
 
 
-![View And Edit Local Storage With Chrome DevTools | Google Developers](Cookies vs Local Storage vs Session Storage.assets/localstorage.png)
+![View And Edit Local Storage With Chrome DevTools | Google Developers](./Cookies vs Local Storage vs Session Storage.assets/localstorage.png)
 
 로컬 스토리지(Local Storage)와 세션 스토리지(Session Storage)는 간단한 키와 값을 저장할 수 있는, HTML5에서 추가된 저장소이다.
 
