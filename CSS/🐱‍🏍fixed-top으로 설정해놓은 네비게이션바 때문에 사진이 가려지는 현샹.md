@@ -6,7 +6,7 @@
 
 
 
-![before-padding-top](\assets\img\before-padding-top.jpg)
+![before-padding-top](../assets/img/before-padding-top.jpg)
 
 문제의 사진이다. 초록색으로 동그라미를 쳐 놓은 부분에서 문제가 발생한다. 바로 fixed-top으로 설정해놓은 네비게이션바 때문에 기존 사진의 상단 부분이 잘리는 문제이다. 코드는 다음과 같다.
 
@@ -53,7 +53,7 @@ header {
 
 <br/>
 
-![after-padding-top](\assets\img\after-padding-top.jpg)
+![after-padding-top](../assets/img/after-padding-top.jpg)
 
 >수정된 결과(가려져 있던 사진의 윗부분이 정상적으로 보인다.)
 
