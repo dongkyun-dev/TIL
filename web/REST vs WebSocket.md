@@ -81,5 +81,26 @@ Rest
 >
 > https://stackoverflow.com/questions/14703627/websockets-protocol-vs-http (굉장히 자세하고 좋은 설명이 되어 있다.)
 
+<br/>
+
+## 5. State
+
+WebSocket
+
+> statuful protocol
+
+Rest
+
+> REST is based on HTTP which is stateless protocol.
+
+<hr/>
+
+## REST와 WebSocket의 주요한 차이점!
+
+- WebSocket은 소켓과 포트의 개념에 기초한 low-level의 프로토콜이다. 반면 REST는 CRUD operation에 기반한 메카니즘이다.
+- WebSocket은 IP주소와 포트의 detail이 필요한 반면 REST는 단순히 HTTP 통신에 기반한다.
+- WebSocket은 양방향 통신이라면, REST는 단방향 통신이다.
+- WebSocket 연결은 단일 서버에서 수직 확장이 가능한 반면 HTTP 기반인 REST는 수평 확장이 가능하다.
+
 
 
