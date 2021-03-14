@@ -157,6 +157,10 @@ OS가 I/O 디바이스 조작을 위해 CPU에 Instructions를 보낸다. 그러
 
 ![storage_structure](/assets/img/storage_structure.png)
 
+
+
+- 캐쉬 - SRAM  메인 메모리 - DRAM  하드디스크 - HDD
+
 - 범용 컴퓨터는 프로그램 대부분을 메인 메모리(randim-access-memory 또는 RAM 이라 부른다)라 불리는 재기록 가능한 메모리에서 가져온다. 메인 메모리는 dynamic random-access memory(DRAM)이라 불리는 반도체 기술로 구현한다.
 - 캐쉬는 CPU 속에 들어가 있다.
 - 보통 비휘발성 저장장치 전부를 `DISK`로 표현한다.(이건 정확하지 않을 수 있다. 근데 보통 그런 식으로 다들 그림을 그리는 것 같다.)
