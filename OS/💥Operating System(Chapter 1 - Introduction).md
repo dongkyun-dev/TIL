@@ -26,6 +26,20 @@ Modern computer system consists of one or more CPUs and a number of device contr
 
 ---
 
+### ROM vs RAM
+
+> RAM(Random Access Memory)
+>
+> ROM(Read Only Memory)
+
+* RAM은 **휘발성 메모리**입니다. 즉, 모듈에 한시적으로 저장된 정보는 컴퓨터를 재시작하거나 종료할 때 삭제된다는 의미입니다. 정보는 전류가 없을 때 트랜지스터에 전기적으로 저장되므로 데이터는 사라집니다. 파일이나 정보는 요청될 때마다 컴퓨터의 스토리지 디스크 또는 인터넷으로부터 검색됩니다. RAM에 데이터가 저장됩니다. 따라서 하나의 프로그램이나 페이지가 다른 프로그램이나 페이지로 이동할 때마다 기존 정보가 즉석 제공됩니다. 컴퓨터가 종료되었을 때 메모리는 프로세스가 다시 시작될 때까지 빈 상태가 됩니다. **휘발성 메모리는 사용자가 손쉽게 변경, 업그레이드 및 확장할 수 있습니다. **
+
+- ROM은 **비휘발성 메모리**로, 정보가 칩에 영구 저장된다는 의미입니다. 메모리의 경우 데이터 저장에 전류에 의존하지 않고, 바이너리 코드를 사용해 개별 셀에 쓰이기 때문입니다. 비휘발성 메모리는 소프트웨어의 초기 부팅 관련 부분, 프린터 작동에 관여하는 펌웨어 명령 등 변하지 않는 컴퓨터 부품에 사용됩니다. 컴퓨터 전원을 끈다 해도 ROM에는 영향을 주지 않습니다. **비휘발성 메모리는 사용자가 변경할 수 없습니다.(변경할 수 없기 때문에 READ ONLY MEMORY라 부르는 것이다.)**
+
+출처)https://www.crucial.kr/articles/about-memory/what-is-the-difference-between-ram-and-rom
+
+---
+
 ###  중요한 개념인 Bootstrap program, Interrupt, system call에 대한 간단한 설명
 
 - #### Bootstrap Program
@@ -123,7 +137,7 @@ CPU가 인터럽트 되면
 
 위에 언급한 interrupt를 통한 I/O는 소량의 데이터일 때는 괜찮지만, 대량의 데이터 이동 시에는 굉장히 높은 오버헤드를 발생시킬 수 있다.(당연하지 한 바이트마다 인터럽트가 발생할 것이고 인터럽트 자체가 pure overhead이다.)
 
-이 문제를 해결하기 위해 DMA가 사용된다.  
+이 문제를 해결하기 위해 **DMA**가 사용된다.  
 
 DMA는 블록마다 딱 1번의 인터럽트가 발생한다.(디바이스 드라이버의 동작이 완료 되었을 때)
 
@@ -145,7 +159,7 @@ DMA는 블록마다 딱 1번의 인터럽트가 발생한다.(디바이스 드�
 
 OS가 I/O 디바이스 조작을 위해 CPU에 Instructions를 보낸다. 그러면 이 CPU는 이 I/O 디바이스들에 시그널을 보낸다.(디바이스 컨트롤러를 통해) 그렇다면 OS는 어떤 디바이스들이 연결되어 있는지, 디바이스 working을 위해 어떤 instructions를 보내야 하는지 어떻게 알고 있는 것일까.
 
-=> manufacture가 디바이스를 만들 때 `디바이스 프로그램` 또한 같이 배포하게 된다. 이 때문에 OS에는 디바이스에 대한 정보들이 전혀 존재하지 않는다. 따라서, OS가 디바이스와 상호작용할 수 있는 유일한 수단은 이것의 `디바이스 프로그램`을 통해서 이다. 많은 초심자들이 일단 드라이버가 설치만 되면 OS는 디바이스의 모든 정보를 이해한다고 생각한다. 하지만, 이것은 사실이 아니고, 드라이버는 OS의 한 부분이 절대 될 수 없다. 결국 드라이버 프로그램이 instructions을 보내고 디바이스로부터 데이터를 받으면 드라이버 프로그램이 그 정보를 OS에 전달하는 식의 플로우이다. OS와 드라이버 간의 소통은 굉장히 간단하게 이루어지는데 둘다 메모리에서 load 되는 것들이기 때문이다. 드라이버는 메모리 공간에서 오랫동안 존재하는 **daemon program**이라 생각할 수 있다. 이러한 이유들 때문에 드라이버 프로그램이 crash 되자마자 I/O 디바이스의 동작이 멈추는 것이다.
+=> manufacture가 디바이스를 만들 때 `디바이스 프로그램` 또한 같이 배포하게 된다. 이 때문에 OS에는 디바이스에 대한 정보들이 전혀 존재하지 않는다. 따라서, OS가 디바이스와 상호작용할 수 있는 유일한 수단은 이것의 `디바이스 프로그램`을 통해서 이다. 많은 초심자들이 일단 드라이버가 설치만 되면 OS는 디바이스의 모든 정보를 이해한다고 생각한다. 하지만, 이것은 사실이 아니고, 드라이버는 OS의 한 부분이 절대 될 수 없다. 결국 드라이버 프로그램이 instructions을 보내고 디바이스로부터 데이터를 받으면 드라이버 프로그램이 그 정보를 OS에 전달하는 식의 플로우이다. OS와 드라이버 간의 소통은 굉장히 간단하게 이루어지는데 둘다 메모리에서 load 되는 것들이기 때문이다. 드라이버는 메모리 공간에서 오랫동안 존재하는 **daemon program**(멀티태스킹 운영 체제에서 사용자가 직접적으로 제어하지 않고, 백그라운드에서 돌면서 여러 작업을 하는 프로그램)이라 생각할 수 있다. 이러한 이유들 때문에 드라이버 프로그램이 crash 되자마자 I/O 디바이스의 동작이 멈추는 것이다.
 
 **위의 내용은 굉장히 심화된 내용이면 나 또한 부분부분 이해하지 못한 내용들이 많다. 언젠가 실력이 올라서 이 내용을 이해할 수 있는 순간이 오지 않을까라는 생각에 일단 적어둔다.**
 
@@ -159,11 +173,45 @@ OS가 I/O 디바이스 조작을 위해 CPU에 Instructions를 보낸다. 그러
 
 
 
-- 캐쉬 - SRAM  메인 메모리 - DRAM  하드디스크 - HDD
+- 위로 갈수록 비싸고 양이 적지만 **빠르다**.
+- 아래로 갈수록 **싸고 양이 많지만** 느리다.
 
-- 범용 컴퓨터는 프로그램 대부분을 메인 메모리(randim-access-memory 또는 RAM 이라 부른다)라 불리는 재기록 가능한 메모리에서 가져온다. 메인 메모리는 dynamic random-access memory(DRAM)이라 불리는 반도체 기술로 구현한다.
+- 캐쉬 - SRAM(Static random-access Memory)  메인 메모리 - DRAM  하드디스크 - HDD(Hard Disk Drive)
+
+- 범용 컴퓨터는 프로그램 대부분을 메인 메모리(random-access-memory 또는 RAM 이라 부른다)라 불리는 재기록 가능한 메모리에서 가져온다. 메인 메모리는 dynamic random-access memory(DRAM)이라 불리는 반도체 기술로 구현한다.
 - 캐쉬는 CPU 속에 들어가 있다.
 - 보통 비휘발성 저장장치 전부를 `DISK`로 표현한다.(이건 정확하지 않을 수 있다. 근데 보통 그런 식으로 다들 그림을 그리는 것 같다.)
+
+---
+
+### SRAM vs DRAM
+
+- 많은 컴퓨팅 시스템에서 사용되는 메인 메모리는 DRAM이다. 용량 대비 가격이 저렴하나 저장된 정보가 시간이 지나면 상실되게 된다. 저장된 정보를 주기적으로 refresh시켜야 하는데, 이 특징 때문에 **Dynamic**하다고 부른다. 전원이 공급되지 않으면 저장된 정보는 상실되기 때문에 휘발성(volatile) 메모리에 속한다.
+- 애초에 SRAM은 DRAM과 구조부터가 다르다. [이곳](https://m.blog.naver.com/PostView.nhn?blogId=laonple&logNo=220923427487&proxyReferer=https:%2F%2Fwww.google.com%2F)에 잘 설명되어있다.(읽어보았지만 정확히 이해하지 못하였다.) SRAM은 cache memory에 사용되며 가격은 비싸지만 상대적으로 빠르게 access할 수 있다는 장점이 존재한다. **Cache는 빠른 processor와 느린 main memory 사이에서의 속도차를 극복하기 위한 것이다.**
+
+---
+
+## 🔴Single Processor System vs Multi Processor System
+
+<br/>
+
+#### Single Processor System
+
+> `general purpose`를 위한 프로세서가 1개인 것이지 전체 프로세서가 1개인 것은 아니다. 
+>
+> 전체 프로세서의 개수 = `general purpose processor`의 개수 + `special purpose processor`의 개수
+
+- One main CPU capable of executing a general purpose instruction set including instructions from user processes.
+- Other special purpose processors are also present which perform device specific tasks.
+
+#### Multi Processor System
+
+- Also known as parallel systems or tightly coupled systems.
+- Has two or more processors in close communication, sharing the computer bus and sometimes the clock, memory, and peripheral devices
+- 다중 처리 시스템의 가장 큰 장점은 처리량 증가에 있다. 이 때문에 단일 처리 시스템보다 훨씬 효율적이지만, bus, clock, memory 등을 공유하기 때문에 reliability가 증가한다는 단점이 존재한다.
+- 프로세서의 개수가 N개가 되면 보통, 속도 향상의 비율 또한 N배가 되지 않을까 쉽게 예측해 볼 수 있다. 하지만, 현실은 그렇지 않다. 여러 프로세서가 하나의 작업에 협력할 때 모든 프로세서가 올바르게 작동하도록 유지하기 위해서는 일정한 양의 오버헤드가 발생한다. 
+
+## SMP, NUMA에 대한 설명!!!!!!! 추가 필요
 
 ---
 
