@@ -18,7 +18,7 @@ Modern computer system consists of one or more CPUs and a number of device contr
 
 ---
 
-### 운영체제의 목표는 크게 3가지로 분류할 수 있다.
+## 운영체제의 목표는 크게 3가지로 분류할 수 있다.
 
 1. Convenience - It is an interface between User & Hardware.
 2. Efficiency -  Allocation of Resources.
@@ -26,7 +26,7 @@ Modern computer system consists of one or more CPUs and a number of device contr
 
 ---
 
-### ROM vs RAM
+## ROM vs RAM
 
 > RAM(Random Access Memory)
 >
@@ -40,7 +40,7 @@ Modern computer system consists of one or more CPUs and a number of device contr
 
 ---
 
-###  중요한 개념인 Bootstrap program, Interrupt, system call에 대한 간단한 설명
+##  중요한 개념인 Bootstrap program, Interrupt, system call에 대한 간단한 설명
 
 - #### Bootstrap Program
 
@@ -105,12 +105,16 @@ CPU가 인터럽트 되면
 
   >CPU 내부에서 실행하면서 인터럽트에 걸리는 경우
   >
+  >
+  >
   >Divide by Zero, Overflow, Underflow
 
 - 소프트웨어 인터럽트
 
   > 소프트웨어가 발생시키는 인터럽트
   >
+  > 
+>
   > 예외상황, system call
 
   <br/>
@@ -120,7 +124,7 @@ CPU가 인터럽트 되면
   <br/>
 
   <br/>
-
+  
   **요약하면, 인터럽트는 최신 운영체제에서 비동기 이벤트를 처리하기 위해 사용된다. 장치 컨트롤러 및 하드웨어 오류로 인해 인터럽트가 발생한다. 가장 긴급한 작업을 먼저 수행하기 위해 최신 컴퓨터는 인터럽트 우선순위 시스템을 사용한다. 인터럽트는 시간에 민감한 처리에 빈번하게 사용되므로 시스템 성능을 좋게 하려면 효율적인 인터럽트 처리가 필요하다.**
 
 ---
@@ -153,7 +157,7 @@ DMA는 블록마다 딱 1번의 인터럽트가 발생한다.(디바이스 드�
 
 ---
 
-### 조금 더 심화된 의문. OS는 어떤 디바이스들이 연결되어 있는지 어떻게 알고 있는 것일까?
+## 조금 더 심화된 의문. OS는 어떤 디바이스들이 연결되어 있는지 어떻게 알고 있는 것일까?
 
 기본적으로 I/O  디바이스는 I/O 포트에 의해 머신에 연결된다. 디바이스는 자신만의 디바이스 컨트롤러를 갖는다. 디바이스 컨트롤러는 I/O machine과 OS, 그 중간에 위치한 하드웨어이다.
 
@@ -165,7 +169,7 @@ OS가 I/O 디바이스 조작을 위해 CPU에 Instructions를 보낸다. 그러
 
 ---
 
-##  Storage Structure
+## Storage Structure
 
 <br/>
 
@@ -176,7 +180,7 @@ OS가 I/O 디바이스 조작을 위해 CPU에 Instructions를 보낸다. 그러
 - 위로 갈수록 비싸고 양이 적지만 **빠르다**.
 - 아래로 갈수록 **싸고 양이 많지만** 느리다.
 
-- 캐쉬 - SRAM(Static random-access Memory)  메인 메모리 - DRAM  하드디스크 - HDD(Hard Disk Drive)
+- 캐쉬 - SRAM(Static random-access Memory)  메인 메모리 - DRAM(dynamic random-access memory)  하드디스크 - HDD(Hard Disk Drive)
 
 - 범용 컴퓨터는 프로그램 대부분을 메인 메모리(random-access-memory 또는 RAM 이라 부른다)라 불리는 재기록 가능한 메모리에서 가져온다. 메인 메모리는 dynamic random-access memory(DRAM)이라 불리는 반도체 기술로 구현한다.
 - 캐쉬는 CPU 속에 들어가 있다.
@@ -184,18 +188,18 @@ OS가 I/O 디바이스 조작을 위해 CPU에 Instructions를 보낸다. 그러
 
 ---
 
-### SRAM vs DRAM
+## SRAM vs DRAM
 
-- 많은 컴퓨팅 시스템에서 사용되는 메인 메모리는 DRAM이다. 용량 대비 가격이 저렴하나 저장된 정보가 시간이 지나면 상실되게 된다. 저장된 정보를 주기적으로 refresh시켜야 하는데, 이 특징 때문에 **Dynamic**하다고 부른다. 전원이 공급되지 않으면 저장된 정보는 상실되기 때문에 휘발성(volatile) 메모리에 속한다.
+- 많은 컴퓨팅 시스템에서 사용되는 메인 메모리는 DRAM이다. 용량 대비 가격이 저렴(SRAM에 비해)하나 저장된 정보가 시간이 지나면 상실되게 된다. 저장된 정보를 주기적으로 refresh시켜야 하는데, 이 특징 때문에 **Dynamic**하다고 부른다. 전원이 공급되지 않으면 저장된 정보는 상실되기 때문에 휘발성(volatile) 메모리에 속한다.
 - 애초에 SRAM은 DRAM과 구조부터가 다르다. [이곳](https://m.blog.naver.com/PostView.nhn?blogId=laonple&logNo=220923427487&proxyReferer=https:%2F%2Fwww.google.com%2F)에 잘 설명되어있다.(읽어보았지만 정확히 이해하지 못하였다.) SRAM은 cache memory에 사용되며 가격은 비싸지만 상대적으로 빠르게 access할 수 있다는 장점이 존재한다. **Cache는 빠른 processor와 느린 main memory 사이에서의 속도차를 극복하기 위한 것이다.**
 
 ---
 
-## 🔴Single Processor System vs Multi Processor System
+## 🔴Single Processor System vs Multi Processor System vs Clustered System
 
 <br/>
 
-#### Single Processor System
+### Single Processor System
 
 > `general purpose`를 위한 프로세서가 1개인 것이지 전체 프로세서가 1개인 것은 아니다. 
 >
@@ -204,14 +208,68 @@ OS가 I/O 디바이스 조작을 위해 CPU에 Instructions를 보낸다. 그러
 - One main CPU capable of executing a general purpose instruction set including instructions from user processes.
 - Other special purpose processors are also present which perform device specific tasks.
 
-#### Multi Processor System
+### Multi Processor System
 
 - Also known as parallel systems or tightly coupled systems.
 - Has two or more processors in close communication, sharing the computer bus and sometimes the clock, memory, and peripheral devices
-- 다중 처리 시스템의 가장 큰 장점은 처리량 증가에 있다. 이 때문에 단일 처리 시스템보다 훨씬 효율적이지만, bus, clock, memory 등을 공유하기 때문에 reliability가 증가한다는 단점이 존재한다.
+- 멀티 프로세서 시스템의 가장 큰 장점은 처리량 증가에 있다. 이 때문에 싱글 프로세서 시스템보다 훨씬 효율적이지만, bus, clock, memory 등을 공유하기 때문에 reliability가 증가한다는 단점이 존재한다.
 - 프로세서의 개수가 N개가 되면 보통, 속도 향상의 비율 또한 N배가 되지 않을까 쉽게 예측해 볼 수 있다. 하지만, 현실은 그렇지 않다. 여러 프로세서가 하나의 작업에 협력할 때 모든 프로세서가 올바르게 작동하도록 유지하기 위해서는 일정한 양의 오버헤드가 발생한다. 
+
+### Clustered System
+
+> *클러스터 시스템은 둘 이상의 독자적 노드(시스템)를 연결하여 구성한다는 점에서 멀티 프로세서와 차이를 가진다. 각 노드들은 통상 다중 코어 시스템이며 약결합(loosely coupled)된 상태로 존재한다. 클러스터형의 정의는 분명하지 않다. 일반적으로 받아들여지는 정의에 의하면 클러스터 컴퓨터는 저장장치를 공유하고 근거리 통신망(LAN)이나 [InfiniBand](https://ko.wikipedia.org/wiki/%EC%9D%B8%ED%94%BC%EB%8B%88%EB%B0%B4%EB%93%9C)와 같은 고속의 상호 연결망으로 연결된다.* - 공룡책 p.21
+
+- 멀티 프로세서 시스템과 같이 computational work를 수행하기  위해 여러개의 CPU들을 모은다.
+
+- 클러스터드 시스템과 멀티 프로세서의 다른점은 멀티 프로세서는 여러 개의  프로세서들을 사용하지만, 클러스터드 시스템은 여러 개의 individual  computer systems를 사용한다는 것이다.(그냥 말 그대로 여러 대의 컴퓨터를 돌린다고 이해하면 좋을 것 같다.)
+
+- 클러스터드 시스템은 고사용성(High availability)을 보장한다. 여러 개의 시스템을 사용하기 때문에 시스템 1개가 죽더라도 다른 시스템이 해당 task를 이어받아 수행할 수 있다.(조금 더 구체적으로 말하자면, *각 노드는 하나 이상의 다른 노드(네트워크로 연결되어 있는)들을 감시한다. 만일 감시받던 노드가 고장 나면 감시하던 노드가 고장 난 노드의 저장장치에 대한 소유권을 넘겨받고, 그 노드에서 실행 중이던 응용 프로그램을 다시 시작한다. 사용자와 응용 프로그램의 클라이언트는 잠깐의 서비스 중단만을 경험하게 된다.* - 공룡책 p.20)
+
+- Clustered System can be structured asymmetrically or symmetrically.
+
+  > asymmetrically 
+  >
+  > - One machine is hot stand-by mode.(Master)
+  > - Master는 다른 활성 서버들을 감시하는 역할을 수행한다.  만약, 모든 활성 서버들이 고장난다면 Master가 활성 서버가 된다.
+  > - Others run applications.
+  >
+  > symmetrically
+  >
+  > - Two or more hosts run applications.
+  > - Monitors each other.
 
 ## SMP, NUMA에 대한 설명!!!!!!! 추가 필요
 
 ---
 
+## 🔴Multiprogramming vs Multitasking
+
+<br/>
+
+### Multiprogramming(Space(memory) sharing)
+
+![Multiprogramming](../assets/img/Multiprogramming.png)
+
+- 한 user가 CPU 를 사용중이라면 다른 user가 이 CPU 혹은 I/O Device를 사용하는 것은 불가능.(아마도 DMA를 사용하게 되면 I/O Device를 사용하는데 CPU 가 필요하지 않으니까 I/O Device 정도는 쓸 수 있을 듯.)
+- 만약 Job1이 실행되고 CPU를 사용하다가 I/O Device를 사용하기 위해 넘어간다고 가정. 이때 Job1이 끝나지 않았기 때문에 CPU는 idle한 상태로 Job1에 머무르게 된다. => 굉장히 비효율적!!!!!! 이런 모양을 Batch system이라 한다.
+- 이를 해결하기 위한 개념이 멀티프로그래밍. Job1이 다른 일을 하는 동안 CPU는 Job2를 처리한다. 또, Job2가 다른 일을 처리하러 간다면 CPU는 Job3를 처리.(그러다가 Job1이 다시 CPU가 필요해지면 Job1으로 가야지. 근데, 바로 가지는 않고 추후에 나오는 스케쥴링 알고리즘에 의해 선택이 되어야 CPU를 다시 가질 수 있다.)
+- Multiprogramming increases CPU utilization by organizing jobs(code and data) so that the CPU always has one to execute.
+- Multiprogrammed systems provide an environment in which the various system resources(for example, CPU, Memory, and Peripheral devices) are utilized effectively, but they do not provide for user interaction with the computer system.(but 이하 내용은 무슨 소리인지 이해하지 못 하였다. 나중에 다시 확인.)
+
+<br/>
+
+### Multitasking(Time sharing)
+
+> Time Sharing 
+>
+> - Uses CPU scheduling and multiprogramming to provide each user with a small portion of a time-shared computer.
+> - Each user has at least one seperate program in memory.
+> - A program loaded into memory and executing is called a **"PROCESS"**
+
+![Multitasking](../assets/img/Multitasking.png)
+
+- CPU가 여러개의 프로세스에 의해서 Multiplexing(다중화) 되는 것.
+- CPU executes multiple jobs by switching among them.
+- 이 switch의 속도가 굉장히 빨라서 실제로는 여러 user들이 system에 붙어있는 모양이지만, user는 자신이 system 전체를 사용하고 있다고 느낀다.
+- Time Sharing requires an interactive computer system which provides direct communication between the user and the system.
+- A time-shared operating system allows many users to share the computer simultaneously.
