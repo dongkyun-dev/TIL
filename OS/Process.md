@@ -103,13 +103,106 @@ A.아니다. Context Switching은 pure overhead를 갖는다.(1번당 5 microsec
 
 ### Process Creation
 
-- A process may create several new processes, via a create-process system call(fork()), during the course of execution.
+- A process may create several new processes, via a create-process system call `fork()`, during the course of execution.
 - The creating process is called a **parent process** , and the new processes are called the **children of that process**.
 - Each of these new processes may in turn(차례로) create other processes, forming a tree of processes.
-- ![fork_system_call](../assets/img/fork_system_call.png)
+
+  ![fork_system_call](../assets/img/fork_system_call.png)
 - When a process creates a new process, two possibilities exist in terms of execution
   	1. The parent continues to execution concurrently with its children.
    	2. The parent waits until some or all of its children have terminated.
 - There are also two possibilities in terms of the address space of the new process.
   1. The child process is a duplicate of the parent process.(It has the same program and data as the parent.)
   2. The child process has a new program loaded into it.
+
+---
+
+### Process Termination
+
+- A process terminates when it finishes executing its final statement and asks the operating system to delete it by using the `exit()` system call.
+- At that point, the process may return a status value(typically an integer) to its parent process. (via the `wait()` system call) 
+- Process가 종료 되면, all the resources of the process - including physical and virtual memory, open files and I/O buffers - are deallocated by the OS.
+- **Termination can occur in other circumstances as well**
+  - A process can cause the termination of another process via an appropriate system call.
+  - Usually, such a system call can be invoked only by the parent of the process that is to be terminated. (즉, 부모 프로세스가 종료될 때 시스템콜을 통해 자식 프로세스를 종료시킬 수 있다.)
+  - Otherwise, users could arbitrarily kill each other's jobs.
+- **A parent may terminate the execution of one of its children for a variety of reasons, such as these**
+  - The child has exceeded its usage of some of the resources that it has been allocated. (이걸 알기 위해서 the parent must have a mechanism to inspect the state of its children.)
+  - The task assigned to the child is no longer required.
+  - The parent is exiting, and the operating system does not allow a child to continue if its parent terminates. (parent가 종료되면 이 parent의 child를 OS가 모두 종료시키는 경우도 있다.)
+
+---
+
+### fork() and exec() system call
+
+- fork()
+
+  > The fork() system call is used to create a separate, duplicate process.
+
+- exec()
+
+  > When an exec() system call is invoked, the program specified in the parameter to exec() will replace the entire process - including all threads.
+  >
+  > Replace process by another process and then another process has a same process id with older one.(왜냐하면, 새로 프로세스를 만든 것이 아니라 replace한 것이기 때문. 결국 pid는 둘 다 같지만 그 안에 내용이 다르게 된다.)
+
+  ```c
+  int main(){
+  	① fork();
+  	② fork();
+  	③ fork();
+  	④ print("Hello");
+  }
+  ```
+
+  이 코드를 실행하면 가장 먼저 ④가 실행되면서 Hello가 출력된다. 그 다음 ①이 실행되는데 ④에 의해 만들어진 process의 child process가 1개 생긴다.(현재 전체 프로세스 2개) 그 다음 ②가 실행되는데 현재 process가 2개이고 각각에 child process가 붙는다.(현재 프로세스 4개) 그 다음 ③이 실행되면 현재 process는 4개이고 각각의 process에 child가 붙어서 process는 총 8개가 된다. fork()를 통해 새로운 process를 만든 것이기 때문에 pid는 모두 다르다.
+  
+  <br/>
+  
+  **결국! fork()와 exec()을 통해 자식 프로세스를 만드는 이유는 여러 작업들을 동시(물론 프로세서가 굉장히 빨리 움직여서 '동시' 처럼 보이는 것이지 실제로 완전한 동시는 아니다.)에 처리하기 위함에 있다. 하지만, 위의 내용들을 읽다보면 부모 프로세스의 내용들이 똑같이 자식 프로세스에 복사되는 일련의 과정들이 굉장히 비효율적이라는 생각이 들 수 밖에 없다. 때문에 "공통적으로 필요한 부분들은 공동으로 소유하면 어떨까?" 라는 아이디어가 나왔고, 이 아이디어를 바탕으로 만들어진 개념이 쓰레드(thread)이다.**
+
+---
+
+### 🔴Thread
+
+> 1 개의 프로세스에 여러 쓰레드가 존재 가능하다. 이 여러 쓰레드들은 1개의 프로세스 안에서 많은 것들을 공유하면서 CPU를 나눠 사용한다.
+>
+> 프로세스를 만드는 것은 오버헤드가 큰 반면, 쓰레드는 프로세스에 비해 훨씬 **simple && light** 하다.
+
+- A thread is a basis unit of CPU utilization.
+
+- It comprises Thread ID, Program COunter, Register Set and Stack.
+
+- It shares with other threads belonging to the same process its **code section, data section, and other operating systam resources, such as open files and signals.**
+
+- A traditional/heavyweight process has a single thread of control. If a process has multiple threads of control, it can perform more than one task at a time.
+
+  ![ThreadDiagram](../assets/img/ThreadDiagram.jpg)
+
+- code, data, files와 같이 공통적으로 사용하는 부분들은 공유하면서 각각의 쓰레드가 독립된 레지스터와 스택을 갖는다.
+
+<br/>
+
+### Thread의 장점
+
+- Responsiveness
+
+  > Multithreading an interactive application may allow a program to continue running even if part of it is blocked or is performing a lengthy operation, thereby increasing responsiveness to the user.
+
+- Resource Sharing
+
+- Economy
+
+- Utilization of Multiprocessor Architectures
+
+<br/>
+
+근데 그렇다고 항상 멀티 쓰레딩이 멀티 프로세싱보다 좋은 것은 아니다. 상황에 따라 다르게 된다.
+
+https://www.crocus.co.kr/1510   //이 글의 내용이 좋다.
+
+---
+
+
+
+
+
