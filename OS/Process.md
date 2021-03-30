@@ -200,6 +200,8 @@ A.아니다. Context Switching은 pure overhead를 갖는다.(1번당 5 microsec
 
 https://www.crocus.co.kr/1510   //이 글의 내용이 좋다.
 
+https://www.joinc.co.kr/w/Site/system_programing/Book_LSP/ch05_Process // 교수님께서 알려주신 사이트. 내용이 되게 자세하고 좋은 것 같다. 천천히 정독하고 여기 내용에 살을 붙이는 식으로 활용해야겠다.
+
 ---
 
 
