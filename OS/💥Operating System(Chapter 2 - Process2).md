@@ -170,7 +170,7 @@ A.아니다. Context Switching은 pure overhead를 갖는다.(1번당 5 microsec
 
 - A thread is a basis unit of CPU utilization.
 
-- It comprises Thread ID, Program COunter, Register Set and Stack.
+- It comprises Thread ID, Program Counter, Register Set and Stack.
 
 - It shares with other threads belonging to the same process its **code section, data section, and other operating systam resources, such as open files and signals.**
 
@@ -343,6 +343,7 @@ OS의 스케쥴러에 의해 현재 프로세스를 보고 있는 커널 쓰레�
 
 - The entire process will block if a thread makes a blocking system call. (유저 쓰레드 중 1개가 커널 쓰레드를 블락시키면 커널 쓰레드가 1개 밖에 없기 때문에 유저 쓰레드 전체가 멈춘다.)
 - Because only one thread can access the kernel at a time, multiple threads are unable to run in parallel on multiprocessors. (1개의 커널 쓰레드는 1개의 프로세서만을 가질 수 있기 때문.)
+- 이런 단점들 때문에 이 모델을 사용 중인 시스템은 거의 존재하지 않는다.
 
 <br/>
 
@@ -355,15 +356,16 @@ OS의 스케쥴러에 의해 현재 프로세스를 보고 있는 커널 쓰레�
 - Maps each user thread to a kernel thread.
 - Provides more concurrency then the many-to-one model by allowing another thread to run when a thread makes a blocking system call.(유저 쓰레드 하나가 블락되더라도 다른 쓰레드에 영향을 끼치지 않는다.)
 - Also allows multiple threads to run in parallel on multiprocessors.
+- 대부분의 운영체제가 이 방식을 사용한다.
 
 단점
 
-- Creating a user thread requires creating the corresponding kernal thread.
+- Creating a user thread requires creating the corresponding kernal thread. (유저 쓰레드를 만들려면 해당 커널 쓰레드를 만들어야 하며 많은 수의 커널 쓰레드가 시스템 성능에 부담을 줄 수 있다.)
 - Because the overhead of creating kernel threads can burden the performance of an application, most implementations of this model restrict the number of threads supported by tthe system. (즉, 만약 4개의 프로세서가 있는 상황이라면 쓰레드의 개수 또한 4개로 제한. 어짜피 더 만들어봐야 쓰지도 못하고, 쓰레드를 만드는 행위 자체가 성능에 부정적인 영향을 끼친다.) 
 
 <br/>
 
-#### 3. Many to many model(N:M)  가장 좋은 방식으로 평가된다.
+#### 3. Many to many model(N:M)  
 
 <img src="../assets/img/Many_to_many_model.jpg" alt="Many_to_many_model" style="zoom: 80%;" />
 
@@ -373,6 +375,12 @@ OS의 스케쥴러에 의해 현재 프로세스를 보고 있는 커널 쓰레�
 - The number of kernel threads may be specific to either a particular application or a particular machine.
 - Developers can create as many user threads as necessary, and the corresponding kernel threads can run in parallel on a multiprocessor.
 - Also when a thread performs a blocking system call, the kernel can schedule another thread for execution.
+
+<br/>
+
+Q. 냉정하게 3개의 모델들 중 Many to many model이 가장 합리적으로 보인다. 그럼에도 불구하고 대부분의 운영체제들이 일대일 모델을 사용하는 이유는 무엇일까?
+
+A. 현대에 들어서면서 대부분의 시스템에서 처리 코어의 개수가 증가하였다. 이 덕분에 커널 쓰레드의 개수를 제한하는 것의 중요성이 줄어들었다. 때문에 커널 쓰레드를 많이 갖추어 더 많은 코어를 동시에 사용하는 것이 훨씬 더 효율적인 설계가 되었다.
 
 <br/>
 
@@ -392,5 +400,23 @@ https://www.crocus.co.kr/1404
 
 ---
 
+### Threading Issues
 
+Fork() 및 Exec() 시스템 콜 
+
+- 일단 기본적으로 Fork는 프로세스 복제(새로운 프로세스가 하나 생기는 것이기 때문에 pid가 다르다.), Exec은 프로세스 대체(기존 프로세스에 새로운 값을 넣는 것이기 때문에 pid가 같다.) 라는 것을 알고 있다. 그렇다면 만약 다중 쓰레드 프로그램에서 하나의 쓰레드가 fork()를 호출한다면 새로운 프로세스는 모든 쓰레드를 복제해야 하는가 아니면 한 개의 쓰레드만 가지는 프로세스여야 하는가? 몇몇 UNIX 기종은 이 두 가지 버전 `fork()` 를 다 제공한다. 하나는 모든 쓰레드를 복사하는 것과 다른 하나는 `fork()`를 호출한 쓰레드만 복제하는 것이다. 
+- 두 버전의 fork() 중 어느 쪽을 택할 것인지는 응용 프로그램에 달려있다. `fork()`를 부르자마자 다시 `exec()`을 부른다면 모든 쓰레드를 다 복제해서 만들어주는 것은 불필요하다. 왜냐하면 `exec()`에서 지정한 프로그램이 곧 모든 것을 다시 대체할 것이시 때문이다. 이 경우에는 `fork()` 시스템 콜을 호출한 쓰레드만 복사해주는 것이 적절하다. 그러나 새 프로세스가 `fork()` 후 `exec()`을 하지 않는다면 새 프로세스는 모든 쓰레드들을 복제해야 한다.
+- exec()은 그냥 항상 모든 쓰레드를 포함한 전체 프로세스를 대체시킨다.
+
+---
+
+### 🔴Thread에 대한 정리
+
+- 다중 쓰레드가 효율적이라는 사실은 지금까지 계속 설명해왔다. 하지만, 다중 쓰레드 응용 프로그램을 설계하는 데에는 몇가지 도전과제가 있다. 작업 분할 및 균형 조정, 서로 다른 쓰레드 간에 데이터 분할 및 데이터 종속성 식별이 포함된다. 마지막으로, 다중 쓰레드 프로그램은 테스트 및 디버깅에 특히 어려움이 있다.
+
+- 사용자 응용 프로그램은 유저 쓰레드를 생성하며, 이 쓰레드는 궁극적으로 CPU에서 실행되도록 커널 쓰레드에 매핑되어야 한다.
+
+  ---
+
+  
 
