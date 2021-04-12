@@ -77,7 +77,25 @@ CPU Scheduling은 아래 4개의 상황에서 발생한다.
 
 2, 3번의 상황에서 발생하는 Scheduling을 `Preemptive` 하다고 부른다.
 
+`Non-Preemptive`
+
+> 어떤 프로세스가 CPU를 할당 받으면 그 프로세스가 종료되거나 I/O request가 발생하여 자발적으로 대기 상태로 들어갈 때까지 계속 실행된다.
+>
+> 일반적으로 Premptive한 방식보다 스케줄러 호출 빈도가 낮고, context switching overhead가 적다.
+>
+> 즉, 어떤 프로세스가 작업을 마치고 자발적으로 대기 상태로 들어가거나 종료되는 경우 다른 프로세스가 실행된다.
+
+`Preemptive`
+
+> 프로세스를 쫓아 내고 CPU 자원을 선점할 수 있는 방식.(선점의 근거는 우선순위에 있다.)
+>
+> 현대 OS는 대부분 시분할 `Premmptive` 스케줄링을 사용한다. 생각해보면 당연한게 `Non-preemptive` 방식은 해당 작업이 끝날 때까지 계속 실행되기 때문에 멀티 프로세스 환경에서 응답성을 기대할 수 없다.
+
 `nonpreemptive`가 더 좋고, `preemptive`가 나쁘다 이런 건 존재하지 않는다. 상황에 따라 유리한 선택지가 달라질 수 있다.
+
++참고문헌)
+
+https://umbum.dev/60
 
 ---
 
@@ -91,3 +109,168 @@ CPU Scheduling은 아래 4개의 상황에서 발생한다.
 
 ---
 
+#### 여기서부터 스케줄링 알고리즘들을 하나씩 확인한다.
+
+---
+
+### FCFS(First come, first served)
+
+- 가장 간단한 알고리즘
+- 온 순서대로 프로세스에 CPU를 배정한다.
+- The implementation of the FCFS policy is easily managed with a FIFO(First in first out) queue.
+- When a process enters the ready queue, its PCB is linked onto the tail of the queue.
+- When the CPU is free, it is allocated to the process at the head of the queue.
+- Running process가 일을 다 끝마치게 되면 해당 프로세스의 PCB는 큐에서 제거된다. (일을 다 끝마칠 때까지 CPU를 가지고 있기 때문)
+- Average waiting time이 길어지는 경우가 많다.
+- Non-preemptive한 알고리즘이다.
+- 프로세스가 CPU를 한 번 가지면, I/O가 발생하거나 프로세스가 종료될 때까지 CPU를 계속 가진다.
+
+![FCFS](../assets/img/FCFS.jpg)
+
+
+
+Waiting Time for P1 = 0ms
+
+Waiting Time for P2 = 24ms                                       =>                  average waiting time = (0+24+27)/3 = 17ms
+
+Waiting TIme for P3 = 27ms
+
+
+
+만약, 순서를 바꿔서 P2P3P1 순이었다고 가정하면 average waiting time은 (0+3+6)/3 = 3ms
+
+앞의 경우보다 훨씬 더 효율적이다.
+
+즉, FCFS에서 나오는 average waiting time은 최소가 아닐 확률이 너무나도 높다. 때문에 실제로 쓰이기는 어려운 알고리즘
+
+<br/>
+
+#### FCFS를 잘 이해하기 위한 예제
+
+<br/>
+
+![FCFS_example](../assets/img/FCFS_example.jpg)
+
+
+
+Turn around time = Completion time - Arrival time
+
+Waiting time = Turn around time - Burst time 
+
+| Process ID | Completion time | Turn around time | Waiting time |
+| ---------- | --------------- | ---------------- | ------------ |
+| P1         | 9               | 9 - 4 = 5        | 5 - 5 = 0    |
+| P2         | 17              | 17 - 6 = 11      | 11 - 4 = 7   |
+| P3         | 3               | 3 - 0 = 3        | 3 - 3 = 0    |
+| P4         | 19              | 19 - 6 = 13      | 13 - 2 = 11  |
+| P5         | 13              | 13 - 5 = 8       | 8 - 4 = 4    |
+
+
+
+**Average turn around time = (5 + 11 + 3 + 13 + 8) / 5 = 8 units**
+
+**Average waiting time = (0 + 7 + 0 + 11 + 4) / 5 = 4.4 units**
+
+---
+
+### SJF(Shortest job first)
+
+- When the CPU is available, it is assigned to the process that has the smallest next CPU burst.
+- 같은 CPU burst를 가지는 2 개의 프로세스가 오는 경우에는 FCFS로 처리한다.
+- SJF 알고리즘은 preemptive 일수도 nonpreemptive 일수도 있다.
+- A more appropriate term for this scheduling method would be the **Shortest-Next-CPU-Burst** algorithm because scheduling depends on the length of the next CPU burst of a process, rather than its total length.
+
+![SJF1](../assets/img/SJF1.jpg)
+
+P1's waiting time = 3 ms
+
+P2's waiting time = 16 ms
+
+P3's waiting time = 9 ms 
+
+P4's waiting time = 0 ms 
+
+Average waiting time = (3 + 16 + 9 + 0) / 4 = 7 ms  (FCFS는 Average waiting time이 10.25ms가 나온다.)
+
+<br/>
+
+![SJF2](../assets/img/SJF2.jpg)
+
+매 초마다 어떤 프로세스가 가장 작은 Burst Time을 가지는지 찾으면 된다.
+
+Waiting time = Total waiting time - No.of miliseconds process executed - Arrival time 
+
+P1's waiting time = (10 - 1 - 0) = 9 ms
+
+P2's waiting time = (1 - 0 - 1) = 0 ms
+
+P3's waiting time = (17 - 0 - 2) = 15 ms
+
+P4's waiting time = (5 - 0 - 3) = 2 ms
+
+Average waiting time = (9 + 0 + 15 + 2) / 4 = 6.5 ms 
+
+<br/>
+
+![SJF3](../assets/img/SJF3.jpg)
+
+P1의 waiting time = 17 - 2 - 0 = 15 ms
+
+P2의 waiting time = 2 - 0 - 2 = 0 ms 
+
+P3의 waiting time = 6 - 0 - 3 = 3 ms
+
+P4의 waiting time = 12 - 0 - 8 = 4 ms
+
+Average waiting time = (15 + 0 + 3 + 4) / 4 = 5.5 ms
+
+<br/>
+
+### SJF 알고리즘의 문제
+
+- 다음 CPU request의 길이를 알아내기가 너무 어렵다.
+
+- 짧은 burst time이 반복되는 경우에서는 사용하기 어렵다. 
+
+  
+
+  **이러한 문제점을 해결하기 위한 한가지 다른 접근 방법이 존재한다.**
+
+  - We may not know the length of the next CPU burst, but we may be able to predict its value.
+  - We expect that the next CPU burst will be simmilar in length to the previous one.
+  - Thus, by computing an approximation of the length  of the next CPU burst, we can pick the process with the shortest predicted CPU burst.(단순 예측이기는 하나 그럴 확률이 높다.)
+
+  
+  
+  ---
+  
+
+### Priority Scheduling
+
+- A priority is associated with each process, and the CPU is allocated to the process with the highest priority.
+- Equal priority processes are scheduled in FCFS order.
+- SJF 알고리즘은 Priority 알고리즘에 포함된다고 할 수 있다.(CPU burst가 크면 우선순위가 낮고, CPU burst가 작으면 우선순위가 크다.)
+- Priority Scheduling can be either preemptive or nonpreemptive.
+-  Preemptive하게 동작할 경우 더 높은 우선순위의 프로세스가 오면 바로 CPU를 넘겨준다. Nonpreemptive하게 동작하는 경우 계속 쓰게 두고 작업이 끝나면 가장 높은 우선순위의 프로세스에게 CPU를 준다.
+
+![Priority_scheduling](../assets/img/Priority_scheduling.jpg)
+
+P1's waiting time = 6 ms
+
+P2's waiting time = 0 ms
+
+P3's waiting time = 16 ms
+
+P4's waiting time = 18 ms
+
+P5's waiting time = 1 ms
+
+Average waiting time = 8.2 ms
+
+우선순위 스케줄링의 가장 큰 단점은 heavily loaded computer system에서 낮은 우선순위를 가지는 프로세스는 평생 CPU를 가질 수 없게 될 수도 있다는 것이다.
+
+이 문제를 해결하기 위해서 만들어진 개념이 **aging**
+
+Aging is a technique of gradually increasing the priority of processes that wait in the system for a long time.
+
+예를 들어 0(low priority)에서 127(high priority)까지의 우선순위가 있을 때, waiting process들의 우선순위를 15분 마다 1씩 증가시키다보면 127의 우선순위를 가지는 프로세스도 결국 언젠가는 실행될 것이다.
