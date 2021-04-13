@@ -269,8 +269,70 @@ Average waiting time = 8.2 ms
 
 우선순위 스케줄링의 가장 큰 단점은 heavily loaded computer system에서 낮은 우선순위를 가지는 프로세스는 평생 CPU를 가질 수 없게 될 수도 있다는 것이다.
 
+=> starvation 발생!
+
 이 문제를 해결하기 위해서 만들어진 개념이 **aging**
 
 Aging is a technique of gradually increasing the priority of processes that wait in the system for a long time.
 
 예를 들어 0(low priority)에서 127(high priority)까지의 우선순위가 있을 때, waiting process들의 우선순위를 15분 마다 1씩 증가시키다보면 127의 우선순위를 가지는 프로세스도 결국 언젠가는 실행될 것이다.
+
+<br/>
+
+![Priority_premmptive](../assets/img/Priority_premmptive.jpg)
+$$
+
+$$
+Waiting time = Total waiting time - NO.of miliseconds Process executed - Arrival time
+
+P1's waiting time = (40 - 2 - 0) = 38 ms
+
+P2's waiting time = (5 - 0 - 5) = 0 ms
+
+P3's waiting time = (49 - 0 -12) = 37 ms
+
+P4's waiting time = (33 - 3 - 2) = 28 ms 
+
+P5's waiting time = (51 - 0 - 9) = 42 ms
+
+Average waiting time = 29 ms
+
+<br/>
+
+![Priority_nonpreemptive](../assets/img/Priority_nonpreemptive.jpg)
+
+P4와 P5 중 P4를 먼저 처리하는 이유는 우선순위가 같은 경우 FCFS로 처리하기 때문
+
+Turn around time = Completion time - Arrival time
+Waiting time = Turn around time - Burst time
+
+| PID  | Completion time | Turnaround time | Waiting time |
+| ---- | --------------- | --------------- | ------------ |
+| P1   | 4               | 4 - 0 = 4       | 4 - 4 = 0    |
+| P2   | 15              | 15 - 1 = 14     | 14 - 3 = 11  |
+| P3   | 12              | 12 - 2 = 10     | 10 - 1 = 9   |
+| P4   | 9               | 9 - 3 = 6       | 6 - 5 = 1    |
+| P5   | 11              | 11 - 4 = 7      | 7 - 2 = 5    |
+
+Average turn around time = 8.2 ms
+
+Average waiting time = 5.2 ms
+
+---
+
+### Round Robin
+
+![Round_robin](../assets/img/Round_robin.png)
+
+- RR은 time sharing(시분할) 시스템을 위해서 설계된 알고리즘이다.
+- FCFS 스케줄링과 비슷하지만, preemption한 특징을 가진다는 차이가 존재한다.
+- **A small unit of time, called a time quantum or time slice, is defined(generally from 10 to 100 miliseconds.)**
+- **The ready queue is treated as a circular queue.**
+- The CPU scheduler goes around the ready queue, allocating the CPU to each process for a time interval of up to 1 time quantum.
+- 즉, P1이 1 time quantum만큼 CPU를 가지고, P2가 1 time quantum만큼 가지고 ... P8이 1 quantum 만큼 가지고, 다시 P1이 끝나지 않았다면 1quantum 만큼 가지고 ... 이런 식으로 원형 큐를 돌면서 모든 프로세스들을 조금씩 처리.
+- **1 time quantum을 정하는 것은 매우 중요하다. 너무 낮게 하면 cost가 있는 context switch가 너무 자주 발생하고, 너무 크게 하면 그냥 FCFS가 돼버린다.**
+- We keep the ready queue as a FIFO queue of processes.
+- New processes are added to the tail of the ready queue.
+- The CPU Scheduler picks the first process from the ready queue, sets a timer to interrupt after 1 time quantum, and dispatches the process. 이 이후 2개의 상황이 나타날 수 있다.
+  - 첫번째 상황은 The process may have a CPU burst of less than 1 quantum인 상황이다. 이 경우 프로세스는 자발적으로 CPU를 놓아준다. CPU 스케줄러는 Ready queue의 헤드에 있는 프로세스에게 CPU를 준다.
+  - 두번째 상황은 The CPU burst of the currently running process is longer than 1 quantum, the timer will go off and will cause an interrupt to the OS. 이후 context switch가 발생하면서 현재 프로세스는 Ready queue의 tail에 들어간다. CPU 스케줄러는 Ready queue의 헤드에 있는 프로세스에게 CPU를 준다.
