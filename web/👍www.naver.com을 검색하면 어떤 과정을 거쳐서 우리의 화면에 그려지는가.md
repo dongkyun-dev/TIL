@@ -127,6 +127,8 @@ ARP(Address Resolution Protocol)를 통해 IP 주소를 MAC 주소로 변환
 
 이제 대상 서버와 통신하기 위해 TCP 연결을 진행한다. 연결은 `3-way-handshake`를 통해 이뤄진다. 제일 중요한 것은 https 요청일 경우 `3-way-handshake` 이후 `TLS-handshake`가 추가로 필요하다는 점이다. `TLS-handshake`를 통해 서버와 클라이언트는 암호화 통신을 수행할 수 있다.
 
+(아래 그림은 그대로 가져왔는데 TLS 부분이 잘못되었다. 조금 구체적으로 직접 그려서 빠른 시일 내에 수정할 예정이다.)
+
 ![3_way_handshake](../assets/img/3_way_handshake.png)
 
 ---
@@ -140,5 +142,7 @@ ARP(Address Resolution Protocol)를 통해 IP 주소를 MAC 주소로 변환
 ## 8. 브라우저에서 응답을 해석
 
 서버에서 응답한 내용들은 HTML, CSS, JavaScript 등으로 이루어져 있다. 이를 브라우저에서 해석하여 그려준다. 이를 통해 우리는 네이버 홈페이지를 볼 수 있게 된다.
+
+이 HTML, CSS, JavaScript로 화면을 그리는 과정을 통틀어 **Critical Rendering Path**라고 한다. 프론트엔드 개발자는 웹페이지 로딩 속도를 개선하여 사용자의 편의를 높여야 하는 의무가 있다. 이 의무를 수행하기 위해서는 **Critical Rendering Path**를 정확히 이해하고 있어야 한다. 때문에 이 부분은 같은 폴더 내에 따로 파일을 만들어 구체적으로 설명하겠다.
 
 ---
