@@ -207,23 +207,131 @@ Reflow만 수행되면 실제 화면에 반영되지 않는다. 위에서 언급
 
 ### Reflow, Repaint 줄이기!
 
+결국 Reflow와 Repaint를 줄이는 것이 성능을 최적화시키는데에 중요하다. 이 두 개를 줄이는 방법을 소개한다.
 
+1. 사용하지 않는 노드에는 `visibility: invisible` 보다 `display: none`을 사용하기
 
+   > visibility invisible은 레이아웃 공간을 차지하기 때문에 Reflow의 대상이 된다. 하지만, `display: none`은 Layout 공간을 차지하지 않아 렌더 트리에서 아예 제외된다.
 
+2. Reflow, Repaint가 발생하는 속성 사용 피하기
 
+   > 아래는 각각 Reflow, Repaint가 일어나는 CSS 속성들이다. Reflow가 일어나면 Repaint는 필연적으로 일어나야 하기 때문에 가능하다면 Reflow가 발생하는 속성보다는 Repaint만 발생하는 속성을 사용하는 것이 좋다.
+   >
+   > <br/>
+   >
+   > <Reflow가 일어나는 대표적인 속성>
+   >
+   > |     position     |       width        |     height      |      left      |       top       |
+   > | :--------------: | :----------------: | :-------------: | :------------: | :-------------: |
+   > |    **right**     |     **bottom**     |   **margin**    |  **padding**   |   **border**    |
+   > | **border-width** |     **clear**      |   **display**   |   **float**    | **font-family** |
+   > |  **font-size**   |  **font-weight**   | **line-height** | **min-height** |  **overflow**   |
+   > |  **text-align**  | **vertical-align** | **white-space** |                |                 |
+   >
+   > <br/>
+   >
+   > <Repaint가 일어나는 대표적인 속성>
+   >
+   > |    background     | background-image  | background-position | background-repeat |   background-size   |
+   > | :---------------: | :---------------: | :-----------------: | :---------------: | :-----------------: |
+   > | **border-radius** | **border-style**  |   **box-shadow**    |     **color**     |   **line-style**    |
+   > |    **outline**    | **outline-color** |  **outline-style**  | **outline-width** | **text-decoration** |
+   > |  **visibility**   |                   |                     |                   |                     |
 
+3. 영향을 주는 노드 줄이기
 
+   >JavaScript + CSS를 조합하여 애니메이션이 많거나 레이아웃 변화가 많은 요소의 경우 position을 absolute 또는 fixed를 사용하여 영향을 받는 주변 노드들을 줄일 수 있습니다. fixed와 같이 영향을 받는 노드가 전혀 없는 경우 Reflow과정이 전혀 필요가 없어지기 때문에 Repaint 연산비용만 들게 됩니다.
+   >
+   > 
+   >
+   >또다른 방법은 애니메이션 시작시 요소를 absolute, fixed로 변경 후 애니메이션이 종료되었을 때 원상복구 하는 방법도 Reflow, Repaint 연산을 줄이는대에 도움이 됩니다.
 
+4. 프레임 줄이기
 
+   >단순히 생각하면 0.1초에 1px씩 이동하는 요소보다 3px씩 이동하는 요소가 Reflow, Repaint 연산비용이 3배가 줄어든다고 볼 수 있습니다. 따라서 부드러운 효과를 조금 줄여 성능을 개선할 수 있습니다.
 
+---
 
+## CSS에서 렌더링 차단 리소스 제거 하기
 
+일단 기본적으로 HTML 및 CSS는 둘 다 렌더링 차단 리소스이다. 하지만, 이 둘이 조금 다른 점이 있다면 HTML의 경우 DOM이 없으면 렌더링할 것이 없기 때문에 명확하지만, CSS의 요구사항은 다소 불명확할 수 있다.
 
+다시 말하지만, 기본적으로 CSS는 렌더링 차단 리소스이다. 때문에 최초 렌더링에 걸리는 시간을 줄이려면 클라이언트에 CSS 파일이 최대한 빠르게 다운로드되어야 하고 이를 위해 최초 렌더링에 필요한 CSS 속성과 그렇지 않은 CSS 속성들을 구분할 필요가 있다.
 
+![02-browser-opt-small](../assets/img/02-browser-opt-small.jpg)
+
+다음 사진의 경우를 보자. 이 사진에서 Critical로 표시된 부분은 첫 화면 렌더링시에 표시되는 부분이고, Non-Critical로 표시된 부분은 스크롤을 내려야만 볼 수 있는 부분이다. 첫 렌더링 시에 표시되지 않는 Non-Critical 부분의 CSS 속성들을 미리 다운로드할 필요가 있을까? 그럴 필요는 절대 없다. 때문에 첫 렌더링 시에 표시되는 CSS 속성들만을 빠르게 받아와서 화면을 그리고, 나머지 CSS 속성들은 비동기적으로 천천히  받아와 사용자 환경을 개선해주는 것이 훨씬 더 중요하다.
+
+![css_block](../assets/img/css_block.jpg)
+
+[출처](https://swimfm.tistory.com/entry/PageSpeed-Insights%EC%9D%98-%EB%A0%8C%EB%8D%94%EB%A7%81-%EC%B0%A8%EB%8B%A8-%EB%A6%AC%EC%86%8C%EC%8A%A4%EB%A5%BC-%EC%A0%9C%EA%B1%B0%ED%95%B4%EB%B3%B4%EC%9E%90)
+
+또 다른 사진을 보자. 만약 CSS가 비동기적으로 로딩된다면 헤더와 메인의 자리가 정해진 후, CSS로 높이가 300이 주어지면서 헤더가 밑으로 팽창할 것이다. 그러면 메인은 당연히 밑으로 밀려나고, Reflow, Repaint가 일어나서 성능누수가 심하게 일어난다. 따라서 이런 CSS 요소들은 HTML을 그리던 것을 멈추고, 처음부터 적용시키는 것이 훨씬 효율적이다. 
+
+이러한 경우들을 위해서 만들어진 개념이 **Critical CSS**이다.
+
+Critical CSS의 핵심은 CSS 파일을 두 개로 쪼개는 것이다. 바로 Critical CSS와 Non-Critical CSS이다. 
+
+첫 렌더링시 화면에 보여지는 부분들에 대한 CSS 속성 혹은 미리 그려지지 않는다면 Reflow, Repaint를 유발하게 되는 CSS 속성들을 Critical CSS로, 그렇지 않은 CSS 속성들은 Non-Critical CSS로 구분하는 것이다.
+
+그렇다면 이 두 파일은 어느 곳에 위치하게 될까?
+
+바로, Critical CSS는 HTML의 `<head>` 태그 속 `<style>` 태그 사이에, Non-Critical CSS는 스타일시트 파일을 불러오는 식으로 코드를 작성하면 된다.
+
+![example_HTML](../assets/img/example_HTML.jpg)
+
+그렇다면, 우리가 기존에 스타일시트 파일을 불러오기 위해 사용하던 `<link href="style.css" rel="stylesheet">` 이런 식의 코드를 사용하면 되는걸까?
+
+**아니다. 다시 한번 강조하지만 우리가 Critical CSS와 Non-Critical CSS를 구분하는 가장 큰 이유는 결국 Critical CSS는 동기적으로, Non-Critical CSS는 비동기적으로 가져오기 위함에 있다. 그런면에서 **`<link href="style.css" rel="stylesheet">` **와 같은 코드 작성은 피해야한다. 이런 식의 코드는 HTML 렌더링을 차단하고 CSS 렌더링을 수행하게 한다. 즉, 동기적인 수행을 일으킨다. 때문에 우리는 다른 방법으로 스크립트 파일을 불러와야하고 바로 다음 주제에서 이를 다루겠다. **
+
+---
+
+## 비동기적으로 CSS 파일 불러오기
+
+```html
+<link href="style.css"    rel="stylesheet">
+<link href="style.css"    rel="stylesheet" media="all">
+```
+
+먼저, 이 두 가지의 방법은 HTML 렌더링을 차단하고 CSS 렌더링을 수행시킨다. 즉, 동기적인 과정이 이루어진다. 이미 우리는 Critical한 CSS와 Non-Critical한 CSS를 구분해놨다. 그럼에도 불구하고 Non-Critical한 CSS 속성들만 모여있는, 다시 말해 첫 렌더링시에 사용하지 않는 속성들만이 모여있는 `style.css` 파일을 동기적으로 가져오는 것은 굉장한 비효율이다.  
+
+때문에 우리는 이 파일들을 비동기적으로 가져오는 방법을 알아야 할 필요가 있다.
+
+가장 간단한 방법이자 추천하는 방법은 아래의 코드이다.
+
+```html
+<link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
+```
+
+물론, 자바스크립트로 CSS 파일을 fetch하는 방법이나, `rel=preload`를 사용하는 방법도 존재한다.
+
+```html
+<script> loadCSS('style.css')</script>
+
+<link rel="preload" href="style.css" as="style">
+```
+
+위의 3가지 방법 모두 내부적으로 동일한 메커니즘에 의해 수행된다. 그럼에도 불구하고 첫번째 방법을 추천하는 이유는 "간단"하기 때문이다.(솔직히 간단한게 맞나? 싶다. 내 생각에는 맨 마지막 코드가 직관적이고 더 간단한 것 같은데 [참조한 문서](https://www.filamentgroup.com/lab/load-css-simpler/)에서 그렇다고 한다.)
+
+---
+
+## ✨마무리
+
+이렇게 Critical Rendering Path에 대한 설명을 마친다. 하지만, Critical Rendering Path가 끝났다고해서 모든 것이 끝나는게 아니다. 
+
+Reflow를 설명할 때 *어떠한 액션이나 이벤트에 따라 html 요소의 크기나 위치등 레이아웃 수치를 수정* 이라는 문장을 사용하였다. 이 문장에서 말하는 어떠한 액션이나 이벤트는 결국 **자바스크립트**에 의한 동작을 의미한다. 때문에 우리는 자바스크립트가 어떤 특징을 가지고 어떻게 DOM을 건들이는지에 대해 이해할 필요가 있다. (이에 대한 글도 바로 쓰기 시작할거다.)
+
+솔직히 HTML과 CSS에 대해서 잘 모르고 잘 다루지도 못한다. 때문에 글을 쓰면서 "아... 잘 알지도 못하는데 이렇게 깊은 내용을 공부하고 기록으로 남기는게 맞는걸까?"라는 회의감에 몇 번이나 휩싸였다. 그럼에도 불구하고 끝까지 작성한 이유는 작동방식에 대한 이해는 기본 중에 기본이라고 생각하기 때문이다. 프로그래밍을 공부하면서 많이 느끼지만 기본이 되지 않은 상태에서 공부해봐야 일주일이 지나면 까먹는다. 물론, 매일 반복해서 까먹지 않게 만들 수도 있다. 하지만, 그것은 이해하려는 노력이 아니라 익숙해지려는 노력일 뿐이다. 
+
+프로그래밍 분야는 빠르게 변화한다. 특히 내가 좋아하는 프론트 분야가 그러하다. 프론트 분야에서 익숙해지기 위한 노력은 자기 자신에 대한 유통기한을 만들 뿐이다. 유통기한이 없는 프론트 개발자가 되기 위해서 끊임없이 기본을 이해하려는 노력들을 수행해야 한다.  
+
+시간이 오래 걸리더라도 기본에 충실한 개발자가 되려는 노력을 하고 싶다. 하지만, 간간이 내 자신의 조급함이 이런 내 꿈의 발목을 잡는 것 같은 느낌을 많이 받는다. 솔직히 프로그래밍을 배우기 이전에 내 자신을 컨트롤하는 법부터 배워야할 듯 싶다.
+
+---
+
+## 참고문헌
 
    https://developers.google.com/web/fundamentals/performance/critical-rendering-path/render-tree-construction?hl=ko
-
-
 
 https://boxfoxs.tistory.com/408
 
@@ -233,12 +341,10 @@ https://d2.naver.com/helloworld/59361
 
 https://seolhun.github.io/contents/web-%EC%9B%B9%EC%82%AC%EC%9D%B4%ED%8A%B8%EC%9D%98-%EC%86%8D%EB%8F%84%EB%A5%BC-%EA%B0%9C%EC%84%A0%ED%95%A0-%EC%88%98-%EC%9E%88%EB%8A%94-%EB%B0%A9%EB%B2%95-9-%EA%B0%80%EC%A7%80-%EC%A0%95%EB%A6%AC-part-2
 
-위에 이거 되게 중요!!
-
 https://swimfm.tistory.com/entry/PageSpeed-Insights%EC%9D%98-%EB%A0%8C%EB%8D%94%EB%A7%81-%EC%B0%A8%EB%8B%A8-%EB%A6%AC%EC%86%8C%EC%8A%A4%EB%A5%BC-%EC%A0%9C%EA%B1%B0%ED%95%B4%EB%B3%B4%EC%9E%90
 
-이것도 중요
-
-
-
 https://www.smashingmagazine.com/2015/08/understanding-critical-css/
+
+https://www.filamentgroup.com/lab/load-css-simpler/
+
+모두 다 정말 좋은 글이다. 시간이 급한게 아니라면 하나씩 읽어볼 가치가 충분하다.
