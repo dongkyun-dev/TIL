@@ -1,4 +1,4 @@
-# CPU Scheduling
+# 💥Operating System(Chapter 5 - CPU Scheduling)
 
 > Ready 상태의 프로세스들 중 누구에게 CPU를 줄 것이냐!!!
 >
@@ -243,7 +243,6 @@ Average waiting time = (15 + 0 + 3 + 4) / 4 = 5.5 ms
   
   
   ---
-  
 
 ### Priority Scheduling
 
