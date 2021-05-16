@@ -3,6 +3,8 @@
 # Vue 각종 기능 알아보기
 
 > script 안의 코드로 인해 해당 값이 바뀔 가능성이 존재하는 경우 html 태그 부분에서 바인드(:)를 한다고 생각하면 편할 것 같다.
+>
+> template 태그 안에서 자바스크립트 코드를 쓰고 싶다면 `"{ }"` 이 중괄호 안에 작성하면 된다. 
 
 ---
 
@@ -744,4 +746,338 @@ export default {
 
 배열일 때는 `.length` 속성을 활용해 데이터를 받아오는 작업이 끝났는지 확인하지만, 객체나 일반 데이터인 경우 그냥 해당 이름만 넣으면 될 것이다.
 
-핵심은 Vue의 mounted === React의 useEffect 이다!
+~~핵심은 Vue의 mounted === React의 useEffect 이다!~~ 제로초님에 의하면 두 개가 비슷한 개념이기는 하나 같지는 않다고 한다. 왜냐하면, React의 useEffect는 update도 반영하기 때문이라고 하시는데, 솔직히 이 말이 정확히 어떤 말인지에 대해 감이 잡히지 않는다. 일단 그렇다고만 알고 넘어가자.
+
+---
+
+### Options API vs Composition API
+
+![options-api_vs_composition-api](../assets/img/options-api_vs_composition-api.jpg)
+
+딱 봐도 지금까지 우리가 써온 Options API 보다는 Composition API가 훨씬 더 깔끔하다는 것을 알 수 있다.
+
+---
+
+### Composition API에서의 ref
+
+```html
+<template>
+  <div class="home">
+    Home
+    <p ref="p">My name is {{ name }}</p>
+    <button @click="handleClick">ㅎㅎ</button>
+  </div>
+</template>
+
+<script>
+import { ref } from "vue";
+
+export default {
+  name: "Home",
+  setup() {
+    // 이렇게 코드를 작성하면 ref값이 p(ref="p")인 DOM을 가져올 수 있다.
+    const p = ref(null);
+
+    const name = "동균";
+
+    const handleClick = () => {
+      console.log("you clicked me");
+      console.log(p);
+    };
+    return { name, handleClick };
+  },
+};
+</script>
+
+```
+
+하지만 이 코드는 치명적인 단점이 존재하는데, name의 값이 바뀌더라도 리렌더링 되지 않는 다는 것이다. Options API에서는 `data() return{}` 속에 작성하는 데이터들에 대한 변화를 감지하고 이를 화면에 반영했었다.
+
+물론 당연히 Composition API에서도 이런 동작이 가능하다. 바로 값이 바뀌었을 때 화면이 리렌더링 되기를 바라는 데이터들을 `ref`로 감싸는 것이다. 
+
+즉, `const name = "동균"` 이 아니라 `const name = ref("동균")`으로 적는 것이다.
+
+실제 예제는 다음과 같다.
+
+```html
+<template>
+  <div class="home">
+    Home
+    <p ref="p">My name is {{ name }}</p>
+    <button @click="handleClick">ㅎㅎ</button>
+  </div>
+</template>
+
+<script>
+import { ref } from "vue";
+
+export default {
+  name: "Home",
+  setup() {
+    const name = ref("동균");
+    const age = ref(30);
+
+    const handleClick = () => {
+      name.value = "lugigi";
+      age.value = 35;
+    };
+    return { name, age, handleClick };
+  },
+};
+</script>
+
+```
+
+값이 바뀌었을 때 화면이 리렌더링 되어야 하는 name, age가 ref로 감싸져 있는 것을 확인할 수 있다. 또한, 실제로 이 값을 바꾸기 위해서는 `name = "blabla"`가 아닌 `name.value = "blabla"`로 작성하여야 한다는 것 또한 확인해볼 수 있다. script 태그 안에서 ref 안의 값에 접근하기 위해서는 value 속성을 활용해야 한다는 것을 기억하자. 반면 template 태그 안에서 해당 값에 접근할 때는 value 값을 붙이지 않아도 된다.
+
+```html
+<template>
+  <div class="home">
+    Home
+    <p ref="p">My name is {{ name }}</p>
+    <button @click="age++">ㅎㅎ</button>
+    <input type="text" v-model="name">
+  </div>
+</template>
+
+<script>
+import { ref } from "vue";
+
+export default {
+  name: "Home",
+  setup() {
+    const name = ref("동균");
+    const age = ref(30);
+
+    const handleClick = () => {
+      name.value = "lugigi";
+      age.value = 35;
+    };
+    return { name, age, handleClick };
+  },
+};
+</script>
+```
+
+---
+
+### reactive
+
+script 태그 속에서는 value를 써야 하고, template 태그 속에서는 value를 쓰지 않아도 된다라.... 너무 어렵다.
+
+때문에 등장한 것이 reactive이다. ref 자리에 reactive만 넣으면 된다. reactive로 만들어진 데이터는 value를 쓰지 않고 접근할 수 있다. 하지만, reactive에는 분명한 한계가 존재하는데, 바로 원시 타입의 데이터에서는 적용되지 않는 다는 것이다. 참조 타입인 객체나 배열에서만 쓸 수 있다.
+
+```html
+<template>
+  <div class="home">
+    <p ref="p">My name is {{ name }}</p>
+    <button @click="handleClick">ㅎㅎ</button>
+  </div>
+</template>
+
+<script>
+import { ref, reactive } from "vue";
+
+export default {
+  name: "Home",
+  setup() {
+      
+    const ninjaOne = ref({ name: "mario", age: 34 });
+    const ninjaTwo = reactive({ name: "luigi", age: 45 });
+	
+    const updateNinjaOne = () => {
+      ninjaOne.value.age = 40;
+    };
+    const updateNinjaTwo = () => {
+      ninjaTwo.age = 45;
+    };
+	
+    const nameOne = reactive('mario')
+    
+    const updatenameOne = () => {
+        nameOne = 'liiji'       // 반영되지 않는다.
+    }
+    return { ninjaOne, ninjaTwo, updateNinjaOne, updateNinjaTwo,nameOne, updatenameOne};
+  },
+};
+</script>
+
+```
+
+---
+
+### Composition API 에서 computed를 사용하는 예제(기존 배열에 대한 검색 기능)
+
+```html
+<template>
+  <div class="home">
+    <input type="text" v-model="search" />
+    <p>search term - {{ search }}</p>
+    <div v-for="name in matchingNames" :key="name">{{ name }}</div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Home",
+  setup() {
+    const search = ref("");
+    const names = ref(["mario", "yoshi", "luigi", "hippo"]);
+
+    const matchingNames = computed(() => {
+      return names.value.filter((name) => {
+        name.includes(search.value);
+      });
+    });
+
+    return { names, search, matchingNames };
+  },
+};
+</script>
+
+<style>
+</style>
+```
+
+---
+
+### watch와 watchEffect
+
+```html
+<template>
+  <div class="home">
+    <input type="text" v-model="search" />
+    <p>search term - {{ search }}</p>
+    <div v-for="name in matchingNames" :key="name">{{ name }}</div>
+    <button @click="handleClick">stop watching</button>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Home",
+  setup() {
+    const search = ref("");
+    const names = ref(["mario", "yoshi", "luigi", "hippo"]);
+	
+	// 이 함수는 search라는 변수를 watch하고 있다. 때문에 search 값이 바뀔 때마다
+	// 이후에 오는 콜백 함수가 실행된다.
+    const stopWatch = watch(search, () => {
+      console.log('watch function ran')
+    })
+	
+	// watchEffect는 처음 렌더링 될 때 딱 한 번 실행된다.
+	// 만약 그냥 watch처럼 특정 데이터가 바뀔 때마다 실행시키고 싶다면 두번째 인자로 
+	// 해당 데이터를 적어주면 된다.
+    const stopEffect = watchEffect(()=>{
+      console.log('watchEffect function ran')
+    })
+    
+    // 특정한 데이터가 바뀔 때마다 실행되던 것을 멈추고 싶다면 해당 함수를 그냥 실행시키
+    // 면 된다.
+    const handleClick = () => {
+    	stopWatch()
+    	stopEffect()
+    }
+    
+    return { names, search, stopWatch, stopEffect };
+  },
+};
+</script>
+
+<style>
+</style>
+```
+
+---
+
+### Composition API에서 props 사용하기
+
+```html
+// App.vue
+
+<template>
+  <div class="home">
+    <h1>Home</h1>
+    <PostList :posts="posts" />
+  </div>
+</template>
+
+<script>
+import PostList from "../components/PostList.vue";
+import { ref } from "vue";
+
+export default {
+  name: "Home",
+  components: { PostList },
+  setup() {
+    const posts = ref([
+      { title: "welcome", body: "loeem ipsumdsadsa", id: 1 },
+      { title: "welcome2", body: "loeem ipsumdssafafaadsa", id: 2 },
+    ]);
+
+    return { posts };
+  },
+};
+</script>
+
+<style>
+</style>
+```
+
+```html
+// PostList.vue
+
+<template>
+  <div class="post-list">
+    <div v-for="post in posts" :key="post.id">
+      <SinglePost :post="post" />
+    </div>
+  </div>
+</template>
+
+<script>
+import SinglePost from "./SinglePost.vue";
+
+export default {
+  props: ["posts"],
+  components: { SinglePost },
+  setup() {},
+};
+</script>
+
+<style>
+</style>
+```
+
+```html
+// SinglePost.vue
+
+<template>
+  <div class="post">
+    <h1>{{ post.title }}</h1>
+    <p>{{ snippet }}</p>
+  </div>
+</template>
+
+<script>
+import { computed } from "vue";
+export default {
+  props: ["post"],
+  setup(props) {
+    // 받아온 props에 대한 접근은 props.post로 하는 거다.
+    const snippet = computed(() => {
+      return props.post.body.substring(0, 100) + "...";
+    });
+
+    return { snippet };
+  },
+};
+</script>
+
+<style>
+</style>
+```
+
+---
+
