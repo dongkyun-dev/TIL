@@ -5,6 +5,8 @@
 > script 안의 코드로 인해 해당 값이 바뀔 가능성이 존재하는 경우 html 태그 부분에서 바인드(:)를 한다고 생각하면 편할 것 같다.
 >
 > template 태그 안에서 자바스크립트 코드를 쓰고 싶다면 `"{ }"` 이 중괄호 안에 작성하면 된다. 
+>
+> 모든 내용은 The Net Ninja 유튜브의 강의를 바탕으로 작성했습니다. 사실 다 따라 쳤습니다. 때문에 강의를 보시는 것을 추천합니다.
 
 ---
 
@@ -1078,6 +1080,140 @@ export default {
 <style>
 </style>
 ```
+
+---
+
+### Life Cycles in Composition API
+
+기존 Life Cycle 앞에 on만 붙여주면 된다.
+
+```javascript
+setup() {
+	onMounted(() => console.log('component mounted'))
+	onUnmounted(() => console.log('component unmounted'))
+	onUpdated(() => console.log('component updated'))
+}
+```
+
+---
+
+###  Fetch Data in Composition API
+
+```html
+<template>
+  <div class="home">
+    <h1>Home</h1>
+    <div v-if="error">{{ error }}</div>
+    <div v-if="posts.length">
+      <PostList :posts="posts" />
+    </div>
+    <div v-else>Loading ...</div>
+  </div>
+</template>
+
+<script>
+import PostList from "../components/PostList.vue";
+import { ref } from "vue";
+
+export default {
+  name: "Home",
+  components: { PostList },
+  setup() {
+    const posts = ref([]);
+    const error = ref(null);
+
+    const load = async () => {
+      try {
+        let data = await fetch("http://localhost:300/post");
+        if (!data.ok) {
+          throw Error("no data available");
+        }
+        posts.value = await data.json();
+      } 
+      catch (err) {
+        error.value = err.message;
+        console.log(error.value);
+      }
+    };
+    load()
+  },
+};
+</script>
+
+<style>
+</style>
+```
+
+이 async문을 잘 활용하면 좋을 듯.
+
+---
+
+### Reusable - Composition API's advantage
+
+Composition API의 가장 큰 장점은 재사용성이 뛰어나다는 것이다. 바로 위의 코드를 분리해보겠다.
+
+```javascript
+// /src/composables/getPosts.js
+
+import { ref } from 'vue'
+
+const getPosts = () => {
+    const posts = ref([]);
+    const error = ref(null);
+
+    const load = async () => {
+        try {
+            let data = await fetch("http://localhost:300/post");
+            if (!data.ok) {
+                throw Error("no data available");
+            }
+            posts.value = await data.json();
+        } catch (err) {
+            error.value = err.message;
+            console.log(error.value);
+        }
+    };
+
+    return { posts, error, load }
+}
+```
+
+```html
+// /src/views/Home.vue
+
+<template>
+  <div class="home">
+    <h1>Home</h1>
+    <div v-if="error">{{ error }}</div>
+    <div v-if="posts.length">
+      <PostList :posts="posts" />
+    </div>
+    <div v-else>Loading ...</div>
+  </div>
+</template>
+
+<script>
+import PostList from "../components/PostList.vue";
+import getPosts from "../composables/getPosts";
+
+export default {
+  name: "Home",
+  components: { PostList },
+  setup() {
+    const { posts, error, load } = getPosts();
+
+    load();
+
+    return { posts, error };
+  },
+};
+</script>
+
+<style>
+</style>
+```
+
+이렇게 두 개로 분리하면 코드가 훨씬 더 깔끔해진다. 또한, post를 가져오는 일이 다른 컴포넌트에서도 반복된다면 이미 만들어놓은 함수를 사용해서 간단하게 코드를 작성할 수 있게 된다.
 
 ---
 
