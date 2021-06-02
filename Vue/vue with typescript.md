@@ -254,5 +254,51 @@ export default defineComponent({
 
 ---
 
+### 그렇다면 실제로 선택한 값으로 정렬은 어떻게 수행할 수 있을까?
+
+```html
+<template>
+  <div class="job-list">
+    <ul>
+      <li v-for="job in jobs" :key="job.id">
+        <h2>{{ job.title }} in {{ job.location }}</h2>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script lang="ts">
+import { computed, defineComponent, PropType } from "vue";
+import Job from "../types/Job";
+import OrderTerm from "../types/OrderTerm";
+
+export default defineComponent({
+  props: {
+    jobs: {
+      required: true,
+      type: Array as PropType<Job[]>,
+    },
+    order: {
+      required: true,
+      type: String as PropType<OrderTerm>,
+    },
+  },
+  setup(props) {
+    const orderedJobs = computed(() => {
+      return [...props.jobs].sort((a, b) => {
+        return a[props.order] > b[props.order] ? 1 : -1;
+      });
+    });
+  },
+});
+</script>
+
+
+<style>
+</style>
+```
+
+한번 정렬한 이후에는 order 혹은 jobs가 바뀌지 않는 이상 재정렬할 필요가 없기 때문에 computed 함수를 사용하면 된다. computed의 모양이 다소 어색할 수 있기 때문에 주의깊게 볼 필요가 있다.
+
 
 
