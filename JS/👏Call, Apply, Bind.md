@@ -43,9 +43,9 @@ update.call(madeline, 1942, 'actor')
 
  아래 두번의 call 함수 호출 이후에 bruce 객체는 `{name: "Bruce", birthYear: 1949, occupation: "singer"}`, madeline 객체는 `{name: "Madeline", birthYear: 1942, occupation: "actor"}`가 된다.
 
-여기서도 call 함수의 호출부에는 파라미터가 3개이지만, update 함수 선언부에는 파라미터가 2개뿐인 것을 확인할 수 있다. 
+여기서도 call 함수의 호출부에는 ~~파라미터가~~ arguments가 3개이지만, update 함수 선언부에는 파라미터가 2개뿐인 것을 확인할 수 있다. 
 
-항상 call 함수의 호출부에 들어가는 파라미터들 중 맨 처음은 this로 사용할 값이어야하고, 이에 대한 내용을 call 함수의 대상이 되는 함수(update 함수) 선언부에서 명시하지 않는다.
+항상 call 함수의 호출부에 들어가는 ~~파라미터들~~ arguments들 중 맨 처음은 this로 사용할 값이어야하고, 이에 대한 내용을 call 함수의 대상이 되는 함수(update 함수) 선언부에서 명시하지 않는다.
 
 ---
 
