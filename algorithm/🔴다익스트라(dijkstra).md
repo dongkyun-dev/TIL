@@ -42,8 +42,11 @@ let distance = new Array(N + 1).fill(Infinity)
                 return a.currCnt - b.currCnt
             })
 
-            let { currNode, currCnt } = queue.shift()
-			
+            const { currNode, currCnt } = queue.shift()
+		   
+            // 이 경우 아래 루프를 거칠 필요가 없다.
+            if (distance[currNode] < currCnt) continue;
+            
             // 해당 노드에서 갈 수 있는 길을 모두 검사한다. 해당 노드까지 오는데 든 비용 + 다음 노드로 가는데 드는 비용이 distance[가려고하는 노드 번호] 값보다 작다면 갱신하고 queue에 넣는다.
             for (let i = 0; i < graph[currNode].length; i++) {
                 if (currCnt + graph[currNode][i]['cost'] < distance[graph[currNode][i]['to']]) {
@@ -66,3 +69,4 @@ console.log(distance[4])
 ```
 
 이런 식으로 호출, 출력하면 된다.
+
