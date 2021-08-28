@@ -181,6 +181,14 @@ https://jusths.tistory.com/60
 
 ---
 
+### git checkout / git pull을 하려하는데 충돌이 발생한다?
+
+1. `git stash`로 지금까지의 수정 기록을 올려둔다.
+2. `git checkout <브랜치 이름>`으로 원하는 브랜치로 이동한다. 혹은 `git pull <원격저장소 이름> <브랜치 이름>`으로 당겨온다.
+3. `git stash apply`로 올려두었던 수정 기록을 가져온다. 충돌이 발생했다면 vsCode 상에서 충돌을 해결해주면된다. 보통은 거의 충돌이 나지 않는다. (분리해서 작업을 한다면)
+
+---
+
 ## 참고자료
 
 https://git-scm.com/book/ko/v2/Git-%EB%8F%84%EA%B5%AC-%ED%9E%88%EC%8A%A4%ED%86%A0%EB%A6%AC-%EB%8B%A8%EC%9E%A5%ED%95%98%EA%B8%B0
