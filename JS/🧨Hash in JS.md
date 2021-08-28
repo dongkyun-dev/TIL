@@ -4,9 +4,9 @@
 
 ---
 
-http://egloos.zum.com/sweeper/v/925740
+https://github.com/Dongkyun-Jang/TIL/blob/master/data_structure/%ED%95%B4%EC%8B%9C.md
 
-정말 자세하게 해쉬의 기본적이고 중요한 개념들을 설명하고 있는 블로그의 글이다. 워낙 해쉬는 중요한 개념이기 때문에 해당 내용을 읽고 외울 필요가 있다. 최소한 이 글을 읽기 시작한다면, 반드시 저 블로그의 내용을 읽고 오는 것이 좋겠다.
+해당 글의 해시를 읽어보자!
 
 ---
 
