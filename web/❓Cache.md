@@ -19,11 +19,11 @@
 
 캐시는 스스로 원한다면 언제든지 사본을 재검사할 수 있다. 그러나 캐시가 문서를 수백만 개씩 갖고 있는 경우가 흔한데 비해 네트워크 대역폭은 부족하기 때문에, 대부분의 캐시는 클라이언트가 사본을 요청하였으며 그 사본이 검사를 할 필요가 있을 정도로 충분히 오래된 경우에만 재검사를 한다.
 
-https://thisblogfor.me/web/http/cache/
+![cache_flow](../assets/img/cache_flow.png)
 
-플로우 차트 사진이 추가되어야 한다.
+![cacheHit](../assets/img/cacheHit.png)
 
-캐시 적중 캐시 부적중, 캐시 재검사 적중 사진과 190 191
+
 
 재검사 요청이 서버에 도달했을 때 일어날 수 있는 3가지 상황이 존재한다.
 
@@ -217,3 +217,4 @@ HTML5 웹 스토리지의 가장 중요한 역할은 쿠키를 대체하는 것�
 - https://yngmanie.space/posts/cache
 - HTTP 완벽가이드(프로그래밍 인사이트)
 - 웹 성능 최적화 기법
+- https://thisblogfor.me/web/http/cache/
