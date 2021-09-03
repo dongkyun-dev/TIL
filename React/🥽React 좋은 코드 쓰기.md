@@ -343,3 +343,64 @@ const doubleNumber = useMemo(() => {
 
 이렇게해서 dark 값이 바뀔 때에만 themeStyles 객체가 재정의되도록 만들어야 한다.
 
+---
+
+### useState의 비동기 동작
+
+상태값 변경은 기본적으로 배치로 처리된다. 이를 위해 비동기로 동작한다.
+
+```javascript
+const [count, setCount] = useState(0);
+
+function onClick() {
+	setCount(count + 1);
+	setCount(count + 1);
+}
+```
+
+`onClick` 함수가 동작하면 `count.value` 값이 두 번 증가하여 2가 되기를 기대하게 된다. 하지만, 실제로는 1이 된다.
+
+이는 상태값 변경 함수(`setState`)가 비동기로 동작하기 때문이다. 리액트는 효율적으로 렌더링하기 위해 여러 개의 상태값 변경 요청을 배치로 처리한다. 따라서 `onClick` 함수가 호출되어도 상태값 변경 함수는 한 번만 동작한다.
+
+리액트가 상태값 변경 함수를 동기로 처리하면 하나의 상태값 변경 함수가 호출될 때마다 화면을 다시 그리기 때문에 성능 이슈가 생길 수 있다. 만약 동기로 처리하지만 매번 화면을 다시 그리지 않는다면 UI 데이터와 화면 간의 불일치가 발생해서 혼란스러울 수 있다.
+
+<해결방법>
+
+상태값 변경 함수에서는 prev를 통해 이전 state를 가져오는 것이 가능하다.
+
+```javascript
+function onClick() {
+	setCount(prev => prev + 1);
+	setCount(prev => prev + 1);
+}
+```
+
+이런 식으로 코드를 작성하면 상태값 변경 함수를 동기로 실행시킬 수 있다.
+
+또한, 하나 기억해두어야 할 것은 상태값 변경 함수는 비동기로 처리되지만 그 순서가 보장된다.
+
+---
+
+### 상태값 변경이 배치로 처리되지 않는 경우도 있다!
+
+리액트는 내부에서 관리하는 이벤트 처리 함수에 대해서만 상태값 변경 함수를 배치로 처리한다. 즉, 리액트 외부에서 관리되는 이벤트 처리 함수의 경우에는 상태값 변경이 배치로 처리되지 않는다.
+
+```react
+function MyComponent() {
+	const [count, setCount] = useState(0);
+	useEffect(() => {
+		function onClick() {
+			setCount(prev => prev + 1);
+			setCount(prev => prev + 1);
+		}
+		window.addEventListener("click", onClick);
+		return () => window.removeEventListener("click", onClick);
+	}, []);
+	console.log("render called");
+}
+```
+
+해당 코드는 window 객체에 이벤트 처리 함수를 등록한다. 리액트 요소에 등록되지 않은 이벤트 처리 함수는 리액트 내부에서 관리되지 않는다. 이처럼 리액트 외부에 등록된 이벤트 처리 함수에서 상태값 변경 함수를 호출하면 배치로 처리되지 않는다. 따라서 화면을 한 번 클릭하면 로그가 두 번 출력되게 된다.
+
+
+
