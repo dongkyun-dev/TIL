@@ -34,6 +34,12 @@
 
 > 특정한 이름의 스태시를 제거
 
+`git stash pop`
+
+> 위의 `git stash apply`의 문제는 해당 stash를 삭제하지 않는다는 점에 있다. 보통 apply로 적용을 시키게 되면 해당 stash는 더이상 필요하지 않음으로 drop 하는 경우가 굉장히 많다. 두번의 명령어를 입력하는 귀찮음을 해소하기 위해서는 pop을 사용하면 된다.
+>
+> `git stash apply` + `git stash drop` = `git stash pop` 이다.
+
 
 
 ## 참고문헌
