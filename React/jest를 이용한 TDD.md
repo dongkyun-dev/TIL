@@ -518,3 +518,468 @@ describe("", () => {
 
 ---
 
+### useState와 관련된 테스트
+
+```react
+import React, { useState } from 'react'
+import "./AddInput.css"
+import { v4 } from "uuid"
+
+function AddInput({
+    setTodos, todos
+}) {
+
+    const [todo, setTodo] = useState("")
+
+    const addTodo = () => {
+        if(!todo) return
+        let updatedTodos = [
+            ...todos,
+            {
+                id: v4(),
+                task: todo,
+                completed: false
+            }
+        ]
+        setTodos(updatedTodos);
+        setTodo("")
+    }
+
+    return (
+        <div className="input-container">
+            <input 
+                className="input" 
+                value={todo} 
+                onChange={(e) => setTodo(e.target.value)}
+                placeholder="Add a new task here..."
+            />
+            <button 
+                className="add-btn"
+                onClick={addTodo}
+            >
+                Add
+            </button>
+        </div>
+    )
+}
+
+export default AddInput
+```
+
+부모의 상태 `todos`와 이를 변경하는 함수 `setTodos`를 받아오는 AddInput 컴포넌트가 있다고 가정한다.
+
+가장 먼저 placeholder가 잘 렌더되는지 확인하기 위해서는 다음과 같은 테스팅 코드를 작성할 수 있다.
+
+```react
+describe("check placeholder is right", () => {
+  it("should render placeholder", () => {
+    render(<AddInput todos={[]} setTodos={() => {}} />);
+    const inputElement = screen.getByPlaceholderText(/Add a new task here.../i);
+    expect(inputElement).toBeInTheDocument();
+  });
+});
+```
+
+실질적으로 해당 테스팅에서 props로 받아오는 setTodos를 사용하지 않기 때문에 저런 식(`() => {}`)의 아무 기능 없는 함수를 넣을 수 있다.
+
+하지만, 이렇게 빈 함수를 넣는 것 보다 더 좋은 방법이 존재하는데 mock 함수를 하나 만들어서 넣는 것이다. 해당 코드는 다음과 같다.
+
+```react
+const mockedSetTodo = jest.fn();
+
+describe("check placeholder is right", () => {
+  it("should render placeholder", () => {
+    render(<AddInput todos={[]} setTodos={mockedSetTodo} />);
+    const inputElement = screen.getByPlaceholderText(/Add a new task here.../i);
+    expect(inputElement).toBeInTheDocument();
+  });
+});
+```
+
+---
+
+### fireEvent를 사용하여 이벤트 테스트
+
+![beforeClick](../assets/img/beforeClick.jpg)
+
+![afterClick](../assets/img/afterClick.jpg)
+
+현재 상황이다. input 박스에 텍스트를 입력하고 Add 버튼을 클리하면 input 박스는 초기화되면서 입력해놓은 텍스트들은 아래의 박스에 추가된다.
+
+여기의 input 박스에 대한 테스트를 수행한다면 할 수 있는 부분은 크게 2가지 일 것이다.
+
+- input 이벤트가 제대로 동작하는가?
+- Add button 클릭 이벤트 이후 input의 값이 초기화 되는가?
+
+먼저, 첫번째 테스트부터 확인해본다. 해당 테스트를 수행하기 위해서는 이벤트를 감지해야하고 이를 위해서 fireEvent라는 것을 사용하게 된다.
+
+```react
+import { render, screen, fireEvent } from "@testing-library/react";
+import AddInput from "../AddInput";
+
+const mockedSetTodo = jest.fn();
+
+describe("AddInput", () => {
+  it("should be able to type into input", () => {
+    render(<AddInput todos={[]} setTodos={mockedSetTodo} />);
+    const inputElement = screen.getByPlaceholderText(/Add a new task here.../i);
+    fireEvent.change(inputElement, {
+      target: { value: "Go Grocery Shopping" },
+    });
+    expect(inputElement.value).toBe("Go Grocery Shopping");
+  });
+}    // success
+```
+
+이런 식으로 테스트 코드를 작성하면 inputElement에 "Go Grocery Shopping" 이라는 input 이벤트가 발생했을 때의 값을 테스팅 할 수 있다.
+
+그 다음으로, 버튼 클릭이 발생했을 때 초기화되는지는 어떻게 확인해볼 수 있을까?
+
+```react
+describe("AddInput", () => {
+	it("should be able to type into input", () => {
+    	render(<AddInput todos={[]} setTodos={mockedSetTodo} />);
+    	const inputElement = screen.getByPlaceholderText(/Add a new task here.../i);
+    	const buttonElement = screen.getByRole("button", { name: /Add/i });
+    	fireEvent.change(inputElement, {
+      	target: { value: "Go Grocery Shopping" },
+    	});
+    	fireEvent.click(buttonElement);
+    	expect(inputElement.value).toBe("");
+  	});
+}     // success
+```
+
+해당 테스트 코드를 통해 가능하다. buttonElement에 click 이벤트가 발생했을 때, inputElement의 값이 ""임을 확인하는 테스트 코드이다.
+
+### 즉, 이벤트에 대한 테스팅은 fireEvent를 통해 수행이 가능하다.
+
+---
+
+### Integration Test
+
+![integrationTest](../assets/img/integrationTest.jpg)
+
+이전 까지는 각 컴포넌트 단위에 대한 테스트만을 진행해왔다. 하지만, 이번에는 여러 컴포넌트 간의 테스트, 즉 통합 테스트를 진행한다.
+
+위 사진을 통해 2개의 분리된 컴포넌트가 존재한다는 것을 파악할 수 있다. input 박스와 input된 텍스트들을 저장하는 아래의 박스 이 2개다. input 박스에 텍스트가 입력되고 Add 버튼이 눌리면 해당 텍스트가 아래의 박스에 추가되는 형식이기 때문에 이 두 컴포넌트를 통합하여 테스팅 할 필요가 존재한다.
+
+해당 부분의 코드는 다음과 같다.
+
+```react
+import React, { useState } from 'react'
+import AddInput from '../AddInput/AddInput'
+import Header from '../Header/Header'
+import TodoList from '../TodoList/TodoList'
+import "./Todo.css"
+
+function Todo() {
+
+    const [todos, setTodos] = useState([])
+
+    return (
+        <div className="todo">
+            <Header title="Todo" />
+            // 위쪽의 인풋 박스
+            <AddInput 
+                setTodos={setTodos}
+                todos={todos}
+            />
+            // 인풋에 의해 생성된 텍스트들이 쌓이는 곳
+            <TodoList 
+                todos={todos}
+                setTodos={setTodos}
+            />
+        </div>
+    )
+}
+
+export default Todo
+```
+
+우리의 의도에 맞는 테스트 코드는 다음과 같이 작성할 수 있을 것이다.
+
+```react
+import { render, screen, fireEvent } from '@testing-library/react';
+import Todo from "../Todo"
+import { BrowserRouter } from "react-router-dom"
+
+// Todo의 하위 컴포넌트에서 Link 태그를 사용하고 있어서 해당 부분이 필요하다.
+const MockTodo = () => {
+    return (
+        <BrowserRouter>
+          <Todo/>
+        </BrowserRouter>
+    )
+}
+
+it('should be able to type into input', () => {
+    render(
+        <MockTodo />
+    );
+    // 인풋 태그 가져오기
+    const inputElement = screen.getByPlaceholderText(/Add a new task here.../i);
+    // 버튼 태그 가져오기
+    const buttonElement = screen.getByRole("button", { name: /Add/i });
+    // 인풋 이벤트 발생
+    fireEvent.change(inputElement, { target: {value: "Go Grocery Shopping" }});
+    // 클릭 이벤트 발생
+    fireEvent.click(buttonElement);
+    // 전체를 감싸는 div 태그 가져오기
+    const divElement = screen.getByText(/Go Grocery Shopping/i);
+    // 이전에 작성한 텍스트가 렌더 되었는지 테스트
+    expect(divElement).toBeInTheDocument()
+});
+```
+
+해당 테스트 코드도 얼핏보면 굉장히 괜찮아보인다. 하지만, 가장 큰 문제는 만약 여러 개의 텍스트를 테스팅해야 한다면 딱 작성한 만큼의 코드를 테스팅 해야 하는 텍스트의 개수만큼 반복해야 한다. 이는 굉장한 비효율이기 때문에 이 문제를 해결하기 위해 테스팅 코드를 함수로 리팩토링해서 분리한다.
+
+1. 하나의 테스트만 수행
+
+```react
+import { render, screen, fireEvent } from '@testing-library/react';
+import Todo from "../Todo"
+import { BrowserRouter } from "react-router-dom"
+
+const MockTodo = () => {
+    return (
+        <BrowserRouter>
+          <Todo/>
+        </BrowserRouter>
+    )
+}
+
+const addTask = (tasks) => {
+    const inputElement = screen.getByPlaceholderText(/Add a new task here.../i);
+    const buttonElement = screen.getByRole("button", { name: /Add/i} );
+    tasks.forEach((task) => {
+        fireEvent.change(inputElement, { target: { value: task } });
+        fireEvent.click(buttonElement);
+    })
+}
+
+it('should be able to type into input', () => {
+    render(
+        <MockTodo />
+    );
+    addTask(["Go Grocery Shopping"])
+    const divElement = screen.getByText(/Go Grocery Shopping/i);
+    expect(divElement).toBeInTheDocument()
+});
+```
+
+2. 여러 개의 테스트를 수행하지만 모두 내용이 같음
+
+```react
+// 위와 동일...
+
+it('should render multiple items', () => {
+    render(
+        <MockTodo />
+    );
+    addTask(["Go Grocery Shopping", "Go Grocery Shopping", "Go Grocery Shopping"])
+    const divElements = screen.queryAllByText(/Go Grocery Shopping/i);
+    expect(divElements.length).toBe(3)
+});
+```
+
+3. 여러 개의 테스트를 수행하면서 모두 내용이 다름
+
+이 경우 기존 코드에 약간의 수정이 필요하다.
+
+```react
+todos.map((todo, index) => (
+	<div 
+		className={`todo-item ${todo.completed && "todo-item-active"}`} 
+		onClick={() => updateTask(todo.id)}
+        // 추가된 부분
+        data-testid="task-container"
+	>
+	{todo.task}
+	</div>
+))
+```
+
+해당 부분은 `<TodoList />` 컴포넌트 내부에서 todos를 렌더하는 곳이다.
+
+이곳에 `data-testid` 값을 추가하는데 내부의 텍스트가 다른 경우에는 기존의 `screen.queryAllByText(/Go Grocery Shopping/i);` 이런 코드로는 원하는 부분을 모두 가져올 수 없기 때문이다.
+
+테스트 코드는 다음과 같이 작성한다.
+
+```react
+it('should render multiple items', () => {
+	render(<MockTodo />);
+	addTask(["Go Grocery Shopping", "Pet my Cat", "Wash my Hands"]);
+	const divElements = screen.getAllByTestId("task-container");
+	expect(divElements.length).toBe(3);
+});
+```
+
+---
+
+### Dynamic class test
+
+이전 코드를 다시 본다.
+
+```react
+todos.map((todo, index) => (
+	<div 
+		className={`todo-item ${todo.completed && "todo-item-active"}`} 
+		onClick={() => updateTask(todo.id)}
+        // 추가된 부분
+        data-testid="task-container"
+	>
+	{todo.task}
+	</div>
+))
+```
+
+`todo.completed`의 값이 true 라면 `todo-item-active` 클래스가 추가되는 것을 확인할 수 있다. `todo.completed`의 값은 클릭 이벤트에 의해 변하게 된다.
+
+이 경우 테스트할 수 있는 부분은 크게 2가지 일 것이다. 클릭 이벤트 발생 이전 `todo-item-active` 클래스가 존재하지 않는 것을 한번 확인하고, 클릭 이벤트 발생 이후 해당 클래스가 존재하는지를 확인하면 될 것이다.
+
+이벤트 발생 이전에 해당 클래스가 존재하지 않는지 확인하는 코드는 다음과 같다.
+
+```react
+it('should not have active class', () => {
+	render(<MockTodo />);
+	addTask(["Go Grocery Shopping"]);
+	const divElement = screen.getByText(/Go Grocery Shopping/i);
+	expect(divElement).not.toHaveClass("todo-item-active");
+});
+```
+
+이벤트 발생 이후 해당 클래스가 존재하는지 확인하는 코드는 다음과 같다.
+
+```react
+it('should have active class after click event', () => {
+	render(<MockTodo />);
+	addTask(["Go Grocery Shopping"]);
+	const divElement = screen.getByText(/Go Grocery Shopping/i);
+    fireEvent.click(divElement);
+	expect(divElement).toHaveClass("todo-item-active");
+});
+```
+
+---
+
+### async에 대한 테스트
+
+```react
+import React, { useEffect, useState } from 'react'
+import "./FollowersList.css"
+import axios from "axios"
+import { Link } from 'react-router-dom';
+
+export default function FollowersList() {
+
+    const [followers, setFollowers] = useState([]);
+
+    useEffect(() => {
+
+        const fetchFollowers = async () => {
+            const { data } = await axios.get("https://randomuser.me/api/?results=5")
+            setFollowers(data.results)
+        }
+
+        fetchFollowers()
+    }, []);
+
+
+
+    return (
+        <div className="followerslist-container">
+            <div>
+                {followers.map((follower, index) => (
+                    <div className="follower-item" data-testid={`follower-item-${index}`}>
+                        <img src={follower.picture.large}/>
+                        <div className="followers-details">
+                            <div className="follower-item-name">
+                                <h4>{follower.name.first}</h4> <h4>{follower.name.last}</h4>
+                            </div>
+                            <p>{follower.login.username}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="todo-footer">
+                <Link to="/">Go Back</Link>
+            </div>
+        </div>
+    )
+}
+```
+
+다음과 같이 useEffect 안에서 사용자의 정보를 호출하게 되는 컴포넌트가 있다고 가정한다. 아래 return문이 잘 렌더되었는지 확인하기 위해 테스트한다면 다음과 같은 코드를 짤 수 있을 것이다.
+
+```react
+import { render, screen, fireEvent } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import FollowersList from "../FollowersList";
+
+const MockFollowersList = () => {
+    return (
+        <BrowserRouter>
+            <FollowersList />
+        </BrowserRouter>
+    )
+}
+
+describe("FollowerList", () => {
+	it('should render same text passed into title prop', async () => {
+		render(<MockFollowerList />);
+		const followerDivElement = screen.getByTestId("follower-item-0");
+		expect(followerDivElement).toBeInTheDocument();
+	})
+})
+```
+
+여러개가 렌더될 수 있겠지만 0번 인덱스만을 테스트하는 코드이다. 하지만 해당 테스트는 실패한다. 왜냐하면 useEffect 속에서 함수가 호출되어야 데이터가 받아와지고 그래야 아래 부분이 렌더되기 때문이다. 
+
+이를 해결하기 위해서는 2가지의 수정이 필요하다
+
+1. async/await 구문으로의 변환이 필요하다.
+2. getByTestId에서는 Await에 대한 사용이 불가능 하기 때문에 다른 메서드를 사용해야 한다.
+
+수정한 테스트 코드는 다음과 같아질 것이다.
+
+```react
+describe("FollowerList", () => {
+	it('should render followers items', async () => {
+		render(<MockFollowerList />);
+		const followerDivElement = await screen.findByTestId("follower-item-0");
+		expect(followerDivElement).toBeInTheDocument();
+	})
+})
+```
+
+이 테스트 코드에는 문제가 존재하는데 0번 인덱스만을 검사한다는 것이다. 때문에 지금까지 계속 그래왔듯이 multiple select를 수행하고 길이가 그와 동일한지 확인하는 식으로 전체 테스트를 진행할 필요가 있다.
+
+```react
+describe("FollowerList", () => {
+	it('should render multiple followers items', async () => {
+		render(<MockFollowerList />);
+		const followerDivElements = await screen.findAllByTestId(/follower-item/i);
+		expect(followerDivElements.length).toBe(5);
+	})
+})
+```
+
+---
+
+### 기존 async 테스트에 대한 재고와 mock 데이터 사용
+
+위에서 async/await으로 작성한 테스트 코드는 실제 api를 호출하게 된다. 하지만, 굳이 테스트 단계에서 api 호출이 필요하지는 않다. 또한, api를 직접 호출하는 것은 다음과 같은 이유들로 피해야 한다.
+
+- Requests Cost Money
+- Requests Are Slow
+- Our Tests Dependent on Something External (api call의 실패가 테스팅의 실패로 이어질 수 있다.)
+
+때문에 우리는 테스팅을 할 때에는 실제 데이터를 불러오는 것이 아닌 미리 정의해놓은 mock(가짜) 데이터를 사용할 필요가 있다.
+
+
+
+
+
+
+
