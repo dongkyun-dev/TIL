@@ -14,6 +14,12 @@
 
 `git log --oneline` 커밋 목록을 깔끔하게 보여준다.
 
+`git remote -v`  연결된 원격저장소 확인
+
+`git remote remove origin`  origin으로 연결된 원격저장소 제거
+
+`git remote add origin <주소>`  주소에 해당하는 원격저장소를 origin이라는 이름으로 연결
+
 ---
 
 ### PR을 올렸는데 그곳에서 팀원분이 코드 수정을 요청한다면 어떻게 할까?
