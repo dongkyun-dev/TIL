@@ -977,9 +977,72 @@ describe("FollowerList", () => {
 
 때문에 우리는 테스팅을 할 때에는 실제 데이터를 불러오는 것이 아닌 미리 정의해놓은 mock(가짜) 데이터를 사용할 필요가 있다.
 
+---
+
+### Before & After Each
+
+테스트 직전과 직후에도 우리가 원하는 작업들을 실행 시킬 수 있다.
+
+| 이름       | 설명                                     |
+| ---------- | ---------------------------------------- |
+| beforeEach | 모든 테스트의 맨 앞에 딱 한 번 실행된다. |
+| beforeAll  | 각각의 테스트 앞에서 실행된다.           |
+| afterEach  | 각각의 테스트 뒤에서 실행된다.           |
+| afterAll   | 모든 테스트가 끝나고 딱 한 번 실행된다.  |
+
+```javascript
+describe("FollowersList", () => {
+ 
+    beforeEach(() => {
+        console.log("RUNS BEFORE EACH TEST")
+    })
+
+    beforeAll(() => {
+        console.log("RUNS ONCE BEFORE ALL TESTS")
+    })
+
+    afterEach(() => {
+        console.log("RUNS AFTER EACH TEST")
+    })
+
+    afterAll(() => {
+        console.log("RUNS ONCE AFTER ALL TESTS")
+    })
+
+    it('should fetch and render input element', async () => {
+        render(
+            <MockFollowersList />
+        );
+        const followerDivElement = await screen.findByTestId(`follower-item-0`)
+        expect(followerDivElement).toBeInTheDocument();
+    });
+    
+    it('should fetch and render input element', async () => {
+        render(
+            <MockFollowersList />
+        );
+    
+        const followerDivElement = await screen.findByTestId(`follower-item-0`)
+        expect(followerDivElement).toBeInTheDocument();
+    });
+})
+```
 
 
 
+1. RUNS BEFORE EACH TEST
 
+2. RUNS ONCE BEFORE ALL TESTS
 
+3. 첫번째 테스트
+
+4. RUNS AFTER EACH TEST
+
+5. RUNS ONCE BEFORE ALL TESTS
+
+6. 두번째 테스트
+
+7. RUNS AFTER EACH TEST
+
+8. RUNS ONCE AFTER ALL TESTS
 
