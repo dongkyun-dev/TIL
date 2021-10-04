@@ -830,3 +830,209 @@ forwardRef의 경우 이런 식으로 타입 정의를 하게 된다.
 
 이곳이다.  타입 정의와 파라미터의 순서가 뒤바뀌어 있기 때문에 잘 기억해두어야 한다. (아마 제네릭 타입이라 이렇게 순서가 바뀌는 것 같다.)
 
+---
+
+### Component를 Props로 보내기
+
+1. attribute 값이 전혀없는 Component를 보내는 경우
+
+```react
+// Private.tsx
+
+import { Login } from './Login';
+
+type PrivateProps = {
+	isLoggedIn: boolean
+    Component: React.ComponentType
+}
+
+export const Private = ({ isLoggedIn, Component }) => {
+    if (isLoggedIn) {
+        return <Component />
+    } else {
+        return <Login />
+    }
+}
+```
+
+2. attribute 값이 존재하는 Component를 보내는 경우
+
+```react
+// Private.tsx
+
+import { Login } from './Login';
+
+type ProfileProps = {
+	name: string
+}
+
+type PrivateProps = {
+	isLoggedIn: boolean
+    Component: React.ComponentType<ProfileProps>
+}
+
+export const Private = ({ isLoggedIn, Component }: PrivateProps) => {
+    if (isLoggedIn) {
+        return <Component name="장동균" />
+    } else {
+        return <Login />
+    }
+}
+```
+
+정확한 이유는 모르겠지만 해당 코드의 props를 다시 다음과 같이 바꿔서 사용한다.
+
+```react
+// Private.tsx
+
+import { Login } from './Login';
+
+type ProfileProps = {
+	name: string
+}
+
+type PrivateProps = {
+	isLoggedIn: boolean
+    component: React.ComponentType<ProfileProps>
+}
+
+export const Private = ({ isLoggedIn, component: Component }: PrivateProps) => {
+    if (isLoggedIn) {
+        return <Component name="장동균" />
+    } else {
+        return <Login />
+    }
+}
+```
+
+기본적으로 컴포넌트만 첫글자를 대문자로 표기하는 것으로 아는데, props로 전달될 때에는 소문자로 전달되어야 하는건가...?
+
+---
+
+### Generic Props
+
+```react
+// List.tsx
+
+type ListProps = {
+	items: string[] | number[]
+	onClick: (value: string | number) => void
+}
+
+export const List = ({ items, onClick }: ListProps) => {
+	return (
+		<div>
+			<h2>List of items</h2>
+			{items.map((item, index) => {
+				return (
+					<div key={index} onClick={() => onClick(item)}>
+						{item}
+					</div>
+				)
+			})}
+		</div>
+	)
+}
+```
+
+```react
+// App.tsx
+
+import { List } from './List'
+
+export default function App() {
+	return (
+		<div className="App">
+			<List
+				items={['Batman', 'Superman', 'Wonder Woman']}
+				onClick={(item) => console.log(item)}
+			/>
+			<List items={[1, 2, 3]} onClick={(item) => console.log(item)} />
+             <List 
+                 items={[
+                    {
+                        first: 'Bruce',
+                        last: 'Wayne',
+                    },
+                    {
+                        first: 'Clark',
+                        last: 'Kent',
+                    },
+                    {
+                        first: 'Princess',
+                        last: 'Diana',
+                    },
+                ]}
+                 onClick={(item) => console.log(item)}
+             />
+        </div>
+	)
+}
+```
+
+```react
+type ListProps = {
+	items: string[] | number[]
+	onClick: (value: string | number) => void
+}
+```
+
+해당 코드를 통해 문자열 배열, 숫자 배열은 커버가 가능하다. 하지만, 위의 경우처럼 객체 배열이 props로 들어오는 경우 당연히 에러가 나게 된다. 물론 `items: string[] | number[] | object[]` 이런 식으로 선언하여 문제를 해결할 수도 있을 것이다. 하지만 이런 식의 코드는 확장성에서 문제가 존재한다. 
+
+때문에 지금과 같이 여러 타입들이 들어올 수 있는 경우에 제네릭을 사용해주어야 한다.
+
+```react
+// List.tsx
+
+type ListProps<T> = {
+	items: T[]
+	onClick: (value: T) => void
+}
+
+export const List = <T extends {}>({ items, onClick }: ListProps<T>) => {
+	return (
+		<div>
+			<h2>List of items</h2>
+			{items.map((item, index) => {
+				return (
+					<div key={index} onClick={() => onClick(item)}>
+						{item}
+					</div>
+				)
+			})}
+		</div>
+	)
+}
+```
+
+제네릭 코드의 핵심은 결국 이 부분이다. `<T extends {}>`
+
+객체를 상속받고 있는 T는 결국 모든 타입을 허용하게 된다. (any와 같은 기능을 한다고 생각해도 무방하지만 any보다 훨씬 좋은 선택지이다.)
+
+만약 `<T extends string | number>` 이런 식으로 제네릭 코드를 작성한다면,
+
+```react
+type ListProps = {
+	items: string[] | number[]
+	onClick: (value: string | number) => void
+}
+```
+
+결국 기존의 이 코드와 동일한 기능을 하게 되는 것이다.
+
+위의 객체 배열만을 허용해야 한다면 제네릭 코드는 다음과 같아 질 수 있다.
+
+`<T extends {first: string, last: string}>`
+
+---
+
+### Restricting Props 
+
+랜덤한 숫자 한개를 받고 이를 렌더하는 컴포넌트가 있다고 가정한다. 
+
+이 컴포넌트는 자신이 양수일 경우 어트리뷰트로 isPositive를, 자신이 음수일 경우 어트리뷰트로 isNegative를, 자신이 0일 경우 어트리뷰트로 isZero를 보낸다고 가정한다. 
+
+이 경우 랜덤한 숫자 한 개는 양수 | 0 | 음수 중 딱 한 개에만 해당하기 때문에 어트리뷰트 또한 딱 한 개만 보내져야 한다.
+
+이 경우 어떻게 하나의 어트리뷰트만 올 수 있게 제한할 수 있을까?
+
