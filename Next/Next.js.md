@@ -4,6 +4,14 @@
 
 ---
 
+Next.js를 한 줄로 정의하면 `The React Framework for Production`
+
+리액트 기반의 프레임워크이나 훨씬 더 생산성을 개선한 것이 Next.js
+
+리액트의 경우 라우팅, 스타일링, authentication, 이미지 레이지 로드와 같은 것들을 직접 다른 라이브러리를 설치해서 구현하거나 직접 구현해야 했다. 하지만, Next.js에서는 이러한 것들을 기본적으로 제공.
+
+---
+
 `npx create-next-app <레포이름>`    
 
 > 만드는 명령어
@@ -167,6 +175,42 @@ export default function Home() {
 
 ---
 
+### Pre-rendering & Data Fetching 
 
+React vs Next.js
 
-14강부터 다시
+> By default, Next.js pre-renders every page in the application
+
+What does pre-render mean?
+
+> Next.js generates HTML for each page in advance instead of having it all done by client-side Javascript
+
+![pre_render](../assets/img/pre_render.jpg)
+
+Pre-render의 장점
+
+1. Pre-rendering improves performance
+   1. In a React app, you need to wait for the JavaScript to be executed. (넥스트의 경우 HTML, CSS를 통한 화면을 먼저 보여주는 것이지 실제로 자바스크립트 파일까지 실행된 상태는 아닌 것이다. 때문에 이 사이 시간에서 발생하는 화면을 보이지만 인터랙션이 안되는 문제가 존재한다.)
+   2. Perhaps fetch data from an external API and then render the UI
+   3. There is a wait time for the user
+   4. With a pre-rendered page, the HTML is already generated and loads faster
+2. Pre-rendering helps with SEO
+   1. With a React app, If the search engine hits your page, it only sees a div tag with id equal to root.
+   2. If search engine hits a pre-rendered page though, all the content is present in the source code which will help index that page.
+   3. 근데 사실 이거는 네이버와 다음같이 국내 브라우저 크롤링 봇에서만 해당하는 것이다. 구글의 크롬봇은 자바스크립트 파일도 크롤링이 가능해서 React라고 더 SEO 측면에서 손해를 보지는 않는다.
+
+---
+
+Next.js supports two forms of pre-rendering
+
+- Static Generation
+
+  > - A method of pre-rendering where the HTML pages are generated at build time.
+  > - The HTML with all the data that makes up the content of the web page are generated in advance when you build your application
+  > - Page can be built once, cached by a CDN and served to the client alomost instantly.
+  > - ex) Blog pages, e-commerce product pages, documentation and marketing pages
+
+- Server-side Rendering
+
+ 
+
