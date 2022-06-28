@@ -116,3 +116,5 @@ http://daplus.net/javascript-%EC%9E%A1%ED%9E%88%EC%A7%80-%EC%95%8A%EC%9D%80-refe
 
 https://webpack.js.org/plugins/provide-plugin/
 
+https://webpack.kr/guides/shimming/
+
